@@ -97,9 +97,6 @@ const createHeaders = (includeAuth = true, customHeaders = {}) => {
 
     if (includeAuth) {
         const token = getAuthToken();
-        console.log('====================================');
-        console.log(token, "this is token");
-        console.log('====================================');
         if (token) {
             headers['Authorization'] = token;
         }
