@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import api, { API_BASE_URL } from "../utils/api";
+import { useCart } from "../context/CartContext";
 import {
   FiFilter,
   FiGrid,
@@ -22,6 +23,7 @@ const CategoryPage = () => {
   const [viewMode, setViewMode] = useState("grid"); // 'grid' or 'list'
   const [sortBy, setSortBy] = useState("newest");
   const [priceRange, setPriceRange] = useState({ min: "", max: "" });
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -277,7 +279,10 @@ const CategoryPage = () => {
                   </Link>
 
                   <div className="product-actions">
-                    <button className="btn add-to-cart">
+                    <button
+                      className="btn add-to-cart"
+                      onClick={() => addToCart(product._id, 1, product)}
+                    >
                       <FiShoppingCart /> Add to Cart
                     </button>
                     <button className="btn-secondary wishlist">

@@ -16,7 +16,6 @@ import {
   FiHeadphones,
 } from "react-icons/fi";
 import ProfileModal from "./ProfileModal";
-import CartModal from "./CartModal";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import logo from "../assets/logo.png"; // ✅ FIXED IMPORT
@@ -26,7 +25,6 @@ const Navbar = () => {
   const [query, setQuery] = useState("");
   const [showCategories, setShowCategories] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const { cartCount } = useCart();
   const navigate = useNavigate();
@@ -187,32 +185,31 @@ const Navbar = () => {
 
             {/* User Actions */}
             <div className="flex items-center gap-2 md:gap-4">
+              <Link
+                to="/cart"
+                className="relative p-2 text-gray-600 hover:text-blue-600 rounded-lg transition-colors"
+                title="Cart"
+              >
+                <FiShoppingCart className="w-6 h-6" />
+                {cartCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 min-w-[18px] h-5 px-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs rounded-full flex items-center justify-center font-semibold shadow-lg"
+                  >
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+
               {isAuthenticated ? (
                 <>
                   {/* Customer Actions */}
                   {isCustomer() && (
-                    <>
-                      <Link
-                        to="/wishlist"
-                        className="relative p-2 text-gray-600 hover:text-red-500 rounded-lg transition-colors"
-                      >
-                        <FiHeart className="w-6 h-6" />
-                      </Link>
-
-                      <button
-                        onClick={() => setIsCartOpen(true)}
-                        className="relative p-2 text-gray-600 hover:text-blue-600 rounded-lg transition-colors"
-                      >
-                        <FiShoppingCart className="w-6 h-6" />
-                        {cartCount > 0 && (
-                          <span
-                            className="absolute -top-1 -right-1 min-w-[18px] h-5 px-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs rounded-full flex items-center justify-center font-semibold shadow-lg"
-                          >
-                            {cartCount}
-                          </span>
-                        )}
-                      </button>
-                    </>
+                    <Link
+                      to="/wishlist"
+                      className="relative p-2 text-gray-600 hover:text-red-500 rounded-lg transition-colors"
+                    >
+                      <FiHeart className="w-6 h-6" />
+                    </Link>
                   )}
 
                   {isAdmin() && (
@@ -385,11 +382,9 @@ const Navbar = () => {
 
             <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(100vh-80px)]">
               {isAuthenticated && isCustomer() && (
-                <button
-                  onClick={() => {
-                    setIsCartOpen(true);
-                    setIsOpen(false);
-                  }}
+                <Link
+                  to="/cart"
+                  onClick={() => setIsOpen(false)}
                   className="flex items-center justify-between w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl transition-all duration-200 hover:shadow-lg"
                 >
                   <span className="flex items-center space-x-3">
@@ -401,7 +396,25 @@ const Navbar = () => {
                       {cartCount}
                     </span>
                   )}
-                </button>
+                </Link>
+              )}
+
+              {!isAuthenticated && (
+                <Link
+                  to="/cart"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center justify-between w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl transition-all duration-200 hover:shadow-lg"
+                >
+                  <span className="flex items-center space-x-3">
+                    <FiShoppingCart className="w-5 h-5" />
+                    <span className="font-medium">View Cart</span>
+                  </span>
+                  {cartCount > 0 && (
+                    <span className="bg-white text-blue-600 px-2.5 py-1 rounded-full text-sm font-semibold">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
               )}
 
               {navigation.map((item) => (
@@ -443,8 +456,6 @@ const Navbar = () => {
           </div>
         </div>
       )}
-
-      <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
 };

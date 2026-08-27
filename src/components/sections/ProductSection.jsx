@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
+import { useCart } from "../../context/CartContext";
 import {
   FiArrowRight,
   FiChevronRight,
@@ -61,7 +62,7 @@ const ProductSection = ({
           <div className="w-20 h-4 bg-gray-200 rounded animate-pulse"></div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {[...Array(6)].map((_, index) => (
             <div key={index} className="bg-white rounded-xl border border-gray-100 p-4 animate-pulse">
               <div className="aspect-square bg-gray-200 rounded-lg mb-3"></div>
@@ -148,16 +149,15 @@ const ProductSection = ({
         )}
       </div>
 
-      {/* Compact Products Grid - 6 columns on desktop */}
+      {/* Product grid — 4 columns so cards and hover icons have room */}
       <motion.div
-        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"
+        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
         variants={containerVariants}
       >
         {displayedProducts.map((product, index) => (
           <motion.div
             key={product._id || product.id || index}
             variants={itemVariants}
-            whileHover={{ y: -2 }}
             className="group"
           >
             <EnhancedCompactProductCard product={product} />
@@ -189,9 +189,9 @@ const ProductSection = ({
 
 // Enhanced Compact Product Card with all ProductCard functionality
 const EnhancedCompactProductCard = ({ product }) => {
-  const [isHovered, setIsHovered] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   // Format price like in ProductCard
   const formatPrice = (price) => {
@@ -248,8 +248,7 @@ const EnhancedCompactProductCard = ({ product }) => {
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    alert("Add to cart functionality will be implemented here");
-    // Add your cart logic here
+    addToCart(product._id, 1, product);
   };
 
   const handleWishlist = (e) => {
@@ -273,22 +272,24 @@ const EnhancedCompactProductCard = ({ product }) => {
     navigate('/compare', { state: { productToCompare: product } });
   };
 
+  const hoverEase = "ease-[cubic-bezier(0.33,0,0.2,1)]";
+  const actionBtnClass =
+    `w-8 h-8 shrink-0 flex items-center justify-center rounded-full shadow-lg bg-white/95 text-gray-900 backdrop-blur-sm opacity-0 translate-x-5 pointer-events-none cursor-pointer group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto hover:scale-110 hover:shadow-xl hover:delay-0 active:scale-95 transition-all duration-400 ${hoverEase} delay-0`;
+
   return (
     <Link
       to={`/product/${product._id || product.id}`}
-      className="block group"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className="block group h-full"
     >
-      <div className="bg-white rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden relative">
+      <div className={`bg-white rounded-xl border border-gray-100 relative h-full flex flex-col transition-shadow duration-300 ${hoverEase} group-hover:shadow-[0_8px_24px_rgba(15,23,42,0.1)]`}>
 
         {/* Product Image */}
-        <div className="aspect-square bg-gray-50 overflow-hidden relative">
+        <div className="aspect-square bg-gray-50 overflow-hidden relative rounded-t-xl">
           {product.images && product.images.length > 0 ? (
             <img
               src={product.images[0]}
               alt={product.name}
-              className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-contain p-3"
               onError={(e) => {
                 e.target.src = "/placeholder-product.jpg";
               }}
@@ -299,83 +300,79 @@ const EnhancedCompactProductCard = ({ product }) => {
             </div>
           )}
 
-          {/* Status Badges */}
-          {product.status === "revoked" && (
-            <div className="absolute top-2 left-2 px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-md">
-              Unavailable
-            </div>
-          )}
+          <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+            {product.status === "revoked" && (
+              <div className="px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-md">
+                Unavailable
+              </div>
+            )}
+            {product.originalPrice && product.originalPrice > product.price && (
+              <div className="px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-md">
+                -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+              </div>
+            )}
+            {isNewProduct() && (
+              <div className="px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-md">
+                New
+              </div>
+            )}
+          </div>
 
-          {isNewProduct() && (
-            <div className="absolute top-2 right-2 px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-md">
-              New
-            </div>
-          )}
-
-          {/* Discount Badge */}
-          {product.originalPrice && product.originalPrice > product.price && (
-            <div className="absolute top-2 left-2 px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-md">
-              -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-            </div>
-          )}
-
-          {/* Hover Actions Overlay */}
-          <div className={`absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center space-x-1 transition-all duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'
-            }`}>
+          <div
+            className={`absolute inset-0 bg-gradient-to-l from-black/20 via-black/[0.04] to-transparent opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-400 ${hoverEase}`}
+          />
+          <div className="absolute top-1/2 right-2 z-20 -translate-y-1/2 flex flex-col gap-2">
             <button
               onClick={handleWishlist}
-              className={`p-1.5 rounded-full transition-all duration-200 transform hover:scale-110 text-xs ${isWishlisted
-                ? 'bg-red-500 text-white'
-                : 'bg-white text-gray-900 hover:bg-red-500 hover:text-white'
-                }`}
+              className={`${actionBtnClass} group-hover:delay-[0ms] ${
+                isWishlisted
+                  ? "bg-red-500 text-white"
+                  : "hover:bg-red-500 hover:text-white"
+              }`}
               title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
-              <FiHeart className="w-3 h-3" />
+              <FiHeart className="w-4 h-4" />
             </button>
             <button
               onClick={handleAddToCart}
-              className="bg-white text-gray-900 p-1.5 rounded-full hover:bg-blue-600 hover:text-white transition-all duration-200 transform hover:scale-110 text-xs"
+              className={`${actionBtnClass} group-hover:delay-[70ms] hover:bg-blue-600 hover:text-white`}
               title="Add to Cart"
             >
-              <FiShoppingCart className="w-3 h-3" />
+              <FiShoppingCart className="w-4 h-4" />
             </button>
             <button
               onClick={handleQuickView}
-              className="bg-white text-gray-900 p-1.5 rounded-full hover:bg-green-500 hover:text-white transition-all duration-200 transform hover:scale-110 text-xs"
+              className={`${actionBtnClass} group-hover:delay-[140ms] hover:bg-green-500 hover:text-white`}
               title="Quick View"
             >
-              <FiEye className="w-3 h-3" />
+              <FiEye className="w-4 h-4" />
             </button>
             <button
               onClick={handleCompare}
-              className="bg-white text-gray-900 p-1.5 rounded-full hover:bg-purple-500 hover:text-white transition-all duration-200 transform hover:scale-110 text-xs"
+              className={`${actionBtnClass} group-hover:delay-[210ms] hover:bg-purple-500 hover:text-white`}
               title="Compare"
             >
-              <FiBarChart2 className="w-3 h-3" />
+              <FiBarChart2 className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Product Info */}
-        <div className="p-3">
-          {/* Category */}
+        <div className="p-3 flex-1 flex flex-col gap-1">
           {product.category && (
-            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{product.category}</p>
+            <p className="text-[11px] text-gray-500 uppercase tracking-wide truncate">
+              {product.category}
+              {product.brand ? ` · ${product.brand}` : ""}
+            </p>
           )}
 
-          <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-1 group-hover:text-blue-600 transition-colors duration-200">
+          <h3 className={`text-sm font-medium text-gray-900 line-clamp-2 min-h-[2.5rem] group-hover:text-blue-600 transition-colors duration-500 ${hoverEase}`}>
             {product.name}
           </h3>
 
-          {/* Brand */}
-          {product.brand && (
-            <p className="text-xs text-gray-500 mb-2 font-medium">{product.brand}</p>
-          )}
-
-          {/* Rating */}
           {(product.rating || product.rating === 0) && (
-            <div className="flex items-center space-x-1 mb-2">
-              <div className="flex items-center">
+            <div className="flex items-center gap-1">
+              <div className="flex items-center shrink-0">
                 {getRatingStars()}
               </div>
               <span className="text-xs text-gray-500">
@@ -384,24 +381,21 @@ const EnhancedCompactProductCard = ({ product }) => {
             </div>
           )}
 
-          {/* Price */}
-          <div className="flex items-center space-x-2 mb-2">
-            <span className="text-sm font-semibold text-blue-600">
-              {formatPrice(product.price)}
-            </span>
-            {product.originalPrice && product.originalPrice > product.price && (
-              <span className="text-xs text-gray-500 line-through">
-                {formatPrice(product.originalPrice)}
+          <div className="flex items-baseline justify-between gap-2 mt-auto">
+            <div className="flex items-baseline gap-1.5 min-w-0">
+              <span className="text-sm font-semibold text-blue-600 truncate">
+                {formatPrice(product.price)}
               </span>
-            )}
-          </div>
-
-          {/* Stock Status */}
-          <div className="text-xs">
+              {product.originalPrice && product.originalPrice > product.price && (
+                <span className="text-xs text-gray-500 line-through shrink-0">
+                  {formatPrice(product.originalPrice)}
+                </span>
+              )}
+            </div>
             {product.quantity > 0 ? (
-              <span className="text-green-600 font-medium">{product.quantity} available</span>
+              <span className="text-[11px] text-green-600 font-medium shrink-0">{product.quantity} left</span>
             ) : (
-              <span className="text-red-500 font-medium">Out of stock</span>
+              <span className="text-[11px] text-red-500 font-medium shrink-0">Out of stock</span>
             )}
           </div>
         </div>

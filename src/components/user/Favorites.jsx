@@ -3,7 +3,8 @@ import LoadingSpinner from '../LoadingSpinner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiHeart, FiTrash2, FiShoppingCart, FiEye, FiStar, FiPackage, FiX } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-import api, { API_BASE_URL, cartApi } from '../../utils/api';
+import api, { API_BASE_URL } from '../../utils/api';
+import { useCart } from '../../context/CartContext';
 
 const Favorites = () => {
   const [favorites, setFavorites] = useState([]);
@@ -11,6 +12,7 @@ const Favorites = () => {
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
   const [removing, setRemoving] = useState({});
+  const { addToCart } = useCart();
 
   const getImageUrl = (url) => {
     if (!url) return "";
@@ -57,10 +59,9 @@ const Favorites = () => {
     }
   };
 
-  const addToCart = async (productId) => {
+  const handleAddToCart = async (product) => {
     try {
-      await cartApi.addToCart(productId, 1);
-      showNotification("Added to cart successfully!");
+      await addToCart(product._id, 1, product);
     } catch (error) {
       showNotification("Failed to add to cart", error.message);
     }
@@ -244,7 +245,7 @@ const Favorites = () => {
 
                   <div className="flex gap-2">
                     <button
-                      onClick={() => addToCart(item.productId._id)}
+                      onClick={() => handleAddToCart(item.productId)}
                       disabled={item.productId.quantity === 0}
                       className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center space-x-2"
                     >

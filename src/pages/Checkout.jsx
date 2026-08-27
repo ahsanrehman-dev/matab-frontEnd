@@ -16,6 +16,7 @@ import {
     FiAlertCircle,
 } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 import api, { API_BASE_URL } from "../utils/api";
 
 const getStoredBuyNowItem = () => {
@@ -48,6 +49,7 @@ const Checkout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, isAuthenticated } = useAuth();
+    const { cartItems } = useCart();
     const [loading, setLoading] = useState(true);
     const [orderPlaced, setOrderPlaced] = useState(false);
     const [orderDetails, setOrderDetails] = useState(null);
@@ -94,8 +96,20 @@ const Checkout = () => {
             return;
         }
 
+        if (cartItems.length > 0) {
+            const totalPrice = cartItems.reduce(
+                (sum, item) => sum + (item.product?.price || 0) * (item.quantity || 1),
+                0
+            );
+            setCartData({
+                items: cartItems,
+                totalItems: cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0),
+                totalPrice,
+            });
+        }
+
         setLoading(false);
-    }, [isAuthenticated, location.state, user]);
+    }, [isAuthenticated, location.state, user, cartItems]);
 
     const getImageUrl = (url) => {
         if (!url) return "";

@@ -20,6 +20,7 @@ import HeroSection from "../components/sections/heroSection";
 import ProductSection from "../components/sections/ProductSection";
 import EmptyState from "../components/sections/EmptyState";
 import api, { API_BASE_URL } from "../utils/api";
+import { useCart } from "../context/CartContext";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -347,7 +348,7 @@ const CleanProductSection = ({ title, subtitle, products, showViewAll, viewAllLi
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {products.slice(0, 8).map((product) => (
             <EnhancedProductCard key={product._id} product={product} />
           ))}
@@ -380,7 +381,7 @@ const ProminentProductSection = ({ title, subtitle, products, bgColor, viewAllLi
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {products.slice(0, 8).map((product) => (
             <EnhancedProductCard key={product._id} product={product} isDark={true} />
           ))}
@@ -391,10 +392,12 @@ const ProminentProductSection = ({ title, subtitle, products, bgColor, viewAllLi
 };
 
 // Enhanced Product Card with Full Functionality
+const hoverEase = "ease-[cubic-bezier(0.33,0,0.2,1)]";
+
 const EnhancedProductCard = ({ product, isDark = false }) => {
-  const [isHovered, setIsHovered] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   const getImageUrl = (url) => {
     if (!url) return "";
@@ -470,21 +473,9 @@ const EnhancedProductCard = ({ product, isDark = false }) => {
     e.stopPropagation();
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-
-      await api.post("/cart", {
-        productId: product._id,
-        quantity: 1
-      });
-
-      alert("Added to cart successfully!");
+      await addToCart(product._id, 1, product);
     } catch (error) {
       console.error("Error adding to cart:", error);
-      alert("Failed to add to cart. Please try again.");
     }
   };
 
@@ -529,22 +520,23 @@ const EnhancedProductCard = ({ product, isDark = false }) => {
     navigate('/compare', { state: { productToCompare: product } });
   };
 
+  const actionBtnClass =
+    `w-9 h-9 shrink-0 flex items-center justify-center rounded-full shadow-lg bg-white/95 text-gray-900 backdrop-blur-sm opacity-0 translate-x-5 pointer-events-none cursor-pointer group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto hover:scale-110 hover:shadow-xl hover:delay-0 active:scale-95 transition-all duration-400 ${hoverEase} delay-0`;
+
   return (
     <Link
       to={`/product/${product._id}`}
-      className="group block"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className="group block h-full"
     >
-      <div className={`${cardBg} border rounded-xl p-4 hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1 relative overflow-hidden`}>
+      <div className={`${cardBg} border rounded-xl relative h-full flex flex-col transition-shadow duration-300 ${hoverEase} group-hover:shadow-[0_8px_24px_rgba(15,23,42,0.1)]`}>
 
         {/* Product Image */}
-        <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden relative">
+        <div className="aspect-square bg-gray-100 rounded-t-xl overflow-hidden relative">
           {product.images && product.images.length > 0 ? (
             <img
               src={getImageUrl(product.images[0])}
               alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-contain p-3"
               onError={(e) => {
                 e.target.src = "/placeholder-product.jpg";
               }}
@@ -555,56 +547,57 @@ const EnhancedProductCard = ({ product, isDark = false }) => {
             </div>
           )}
 
-          {/* Status Badges */}
-          {product.status === "revoked" && (
-            <div className="absolute top-2 left-2 px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-md">
-              Unavailable
-            </div>
-          )}
+          {/* Status badges stay on the left so they never cover hover actions */}
+          <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+            {product.status === "revoked" && (
+              <div className="px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-md">
+                Unavailable
+              </div>
+            )}
+            {product.originalPrice && product.originalPrice > product.price && (
+              <div className="px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-md">
+                -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+              </div>
+            )}
+            {new Date(product.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) && (
+              <div className="px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-md">
+                New
+              </div>
+            )}
+          </div>
 
-          {new Date(product.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) && (
-            <div className="absolute top-2 right-2 px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-md">
-              New
-            </div>
-          )}
-
-          {/* Discount Badge */}
-          {product.originalPrice && product.originalPrice > product.price && (
-            <div className="absolute top-2 left-2 px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-md">
-              -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-            </div>
-          )}
-
-          {/* Hover Actions Overlay */}
-          <div className={`absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center space-x-2 transition-all duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'
-            }`}>
+          <div
+            className={`absolute inset-0 bg-gradient-to-l from-black/20 via-black/[0.04] to-transparent opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-400 ${hoverEase}`}
+          />
+          <div className="absolute top-1/2 right-2 z-20 -translate-y-1/2 flex flex-col gap-2">
             <button
               onClick={handleAddToCart}
-              className="bg-white text-gray-900 p-2 rounded-full hover:bg-blue-600 hover:text-white transition-all duration-200 transform hover:scale-110"
+              className={`${actionBtnClass} group-hover:delay-[0ms] hover:bg-blue-600 hover:text-white`}
               title="Add to Cart"
             >
               <FiShoppingCart className="w-4 h-4" />
             </button>
             <button
               onClick={handleAddToWishlist}
-              className={`p-2 rounded-full transition-all duration-200 transform hover:scale-110 ${isWishlisted
-                ? 'bg-red-500 text-white'
-                : 'bg-white text-gray-900 hover:bg-red-500 hover:text-white'
-                }`}
+              className={`${actionBtnClass} group-hover:delay-[70ms] ${
+                isWishlisted
+                  ? "bg-red-500 text-white"
+                  : "hover:bg-red-500 hover:text-white"
+              }`}
               title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
-              <FiHeart className="w-4 h-4  " />
+              <FiHeart className="w-4 h-4" />
             </button>
             <button
               onClick={handleQuickView}
-              className="bg-white text-gray-900 p-2 rounded-full hover:bg-green-500 hover:text-white transition-all duration-200 transform hover:scale-110"
+              className={`${actionBtnClass} group-hover:delay-[140ms] hover:bg-green-500 hover:text-white`}
               title="Quick View"
             >
               <FiEye className="w-4 h-4" />
             </button>
             <button
               onClick={handleCompare}
-              className="bg-white text-gray-900 p-2 rounded-full hover:bg-purple-500 hover:text-white transition-all duration-200 transform hover:scale-110"
+              className={`${actionBtnClass} group-hover:delay-[210ms] hover:bg-purple-500 hover:text-white`}
               title="Compare"
             >
               <FiBarChart2 className="w-4 h-4" />
@@ -613,50 +606,38 @@ const EnhancedProductCard = ({ product, isDark = false }) => {
         </div>
 
         {/* Product Info */}
-        <div className="space-y-2">
-          {/* Category */}
+        <div className="p-3 sm:p-4 flex-1 flex flex-col gap-1.5">
           {product.category && (
-            <p className={`text-xs ${subtextColor} uppercase tracking-wide`}>{product.category}</p>
+            <p className={`text-[11px] ${subtextColor} uppercase tracking-wide truncate`}>
+              {product.category}
+              {product.brand ? ` · ${product.brand}` : ""}
+            </p>
           )}
 
-          <h3 className={`font-medium ${textColor} line-clamp-2 group-hover:text-blue-600 transition-colors text-sm leading-tight`}>
+          <h3 className={`font-medium ${textColor} line-clamp-2 group-hover:text-blue-600 transition-colors duration-500 ${hoverEase} text-sm leading-snug min-h-[2.5rem]`}>
             {product.name}
           </h3>
 
-          {product.brand && (
-            <p className={`text-xs ${subtextColor} font-medium`}>{product.brand}</p>
-          )}
+          <div className="flex items-center gap-1 mt-auto">
+            <div className="flex shrink-0">{getRatingStars()}</div>
+            <span className={`text-xs ${subtextColor}`}>(4.5)</span>
+          </div>
 
-          {/* Rating */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-1">
-              <div className="flex">
-                {getRatingStars()}
-              </div>
-              <span className={`text-xs ${subtextColor}`}>
-                (4.5)
+          <div className="flex items-baseline justify-between gap-2">
+            <div className="flex items-baseline gap-1.5 min-w-0">
+              <span className={`font-bold ${textColor} text-base truncate`}>
+                {formatPrice(product.price)}
               </span>
+              {product.originalPrice && product.originalPrice > product.price && (
+                <span className={`text-xs ${subtextColor} line-through shrink-0`}>
+                  {formatPrice(product.originalPrice)}
+                </span>
+              )}
             </div>
-          </div>
-
-          {/* Price */}
-          <div className="flex items-center space-x-2">
-            <span className={`font-bold ${textColor} text-lg`}>
-              {formatPrice(product.price)}
-            </span>
-            {product.originalPrice && product.originalPrice > product.price && (
-              <span className={`text-sm ${subtextColor} line-through`}>
-                {formatPrice(product.originalPrice)}
-              </span>
-            )}
-          </div>
-
-          {/* Stock Status */}
-          <div className="text-xs">
             {product.quantity > 0 ? (
-              <span className="text-green-600 font-medium">{product.quantity} available</span>
+              <span className="text-[11px] text-green-600 font-medium shrink-0">{product.quantity} left</span>
             ) : (
-              <span className="text-red-500 font-medium">Out of stock</span>
+              <span className="text-[11px] text-red-500 font-medium shrink-0">Out of stock</span>
             )}
           </div>
 
@@ -664,7 +645,7 @@ const EnhancedProductCard = ({ product, isDark = false }) => {
             type="button"
             onClick={handleBuyNow}
             disabled={!product.quantity || product.quantity <= 0}
-            className={`w-full mt-2 py-2 rounded-lg text-sm font-semibold transition-all ${
+            className={`w-full mt-1 py-2 rounded-lg text-sm font-semibold transition-colors duration-300 ${hoverEase} ${
               !product.quantity || product.quantity <= 0
                 ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                 : "bg-emerald-600 text-white hover:bg-emerald-700"

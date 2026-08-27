@@ -3,11 +3,13 @@ import PropTypes from "prop-types";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiHeart, FiShoppingCart, FiStar, FiEye, FiBarChart2 } from "react-icons/fi";
+import { useCart } from "../context/CartContext";
 
 const ProductCard = ({ product }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   const handleWishlist = (e) => {
     e.preventDefault();
@@ -15,9 +17,10 @@ const ProductCard = ({ product }) => {
     setIsWishlisted(!isWishlisted);
   };
 
-  const handleAddToCart = () => {
-    // Placeholder for add to cart functionality
-    alert("Add to cart functionality will be implemented here");
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product._id, 1, product);
   };
 
   const handleCompare = (e) => {
@@ -87,19 +90,10 @@ const ProductCard = ({ product }) => {
       background: "white",
       borderRadius: "12px",
       overflow: "hidden",
-      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
-      transition: "all 0.3s ease",
-      position: "relative",
-      height: "100%",
-      display: "flex",
-      flexDirection: "column",
-    },
-    productCardHover: {
-      background: "white",
-      borderRadius: "12px",
-      overflow: "hidden",
-      boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
-      transition: "all 0.3s ease",
+      boxShadow: isHovered
+        ? "0 8px 24px rgba(15, 23, 42, 0.1)"
+        : "0 2px 8px rgba(0, 0, 0, 0.08)",
+      transition: "box-shadow 0.3s ease",
       position: "relative",
       height: "100%",
       display: "flex",
@@ -128,21 +122,9 @@ const ProductCard = ({ product }) => {
       height: "100%",
       objectFit: "contain",
       objectPosition: "center",
-      transition: "transform 0.3s ease",
       maxWidth: "100%",
       maxHeight: "100%",
       padding: "1rem",
-    },
-    productImageHover: {
-      width: "100%",
-      height: "100%",
-      objectFit: "contain",
-      objectPosition: "center",
-      transition: "transform 0.3s ease",
-      maxWidth: "100%",
-      maxHeight: "100%",
-      padding: "1rem",
-      transform: "scale(1.05)",
     },
     imageOverlay: {
       position: "absolute",
@@ -150,18 +132,20 @@ const ProductCard = ({ product }) => {
       left: 0,
       right: 0,
       bottom: 0,
-      background: "rgba(0, 0, 0, 0.6)",
+      background: "linear-gradient(to left, rgba(0,0,0,0.2), rgba(0,0,0,0.04), transparent)",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       opacity: isHovered ? 1 : 0,
-      transition: "opacity 0.3s ease",
+      transition: "opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
+      pointerEvents: "none",
     },
     overlayActions: {
       display: "flex",
       gap: "0.5rem",
-      transform: isHovered ? "translateY(0)" : "translateY(20px)",
-      transition: "transform 0.3s ease",
+      pointerEvents: isHovered ? "auto" : "none",
+      opacity: isHovered ? 1 : 0,
+      transition: "opacity 0.3s ease",
     },
     overlayBtn: {
       width: "40px",
@@ -325,11 +309,9 @@ const ProductCard = ({ product }) => {
 
   return (
     <motion.div
-      style={isHovered ? styles.productCardHover : styles.productCard}
+      style={styles.productCard}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      whileHover={{ y: -8 }}
-      transition={{ duration: 0.3 }}
     >
       <Link to={`/product/${product._id}`} style={styles.productLink}>
         {/* Product Image */}
@@ -337,19 +319,14 @@ const ProductCard = ({ product }) => {
           <img
             src={product.images?.[0] || "/placeholder-product.jpg"}
             alt={product.name}
-            style={isHovered ? styles.productImageHover : styles.productImage}
+            style={styles.productImage}
             onError={(e) => {
               e.target.src = "/placeholder-product.jpg";
             }}
           />
 
           {/* Image Overlay */}
-          <motion.div
-            style={styles.imageOverlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div style={styles.imageOverlay}>
             <div style={styles.overlayActions}>
               <button
                 style={styles.overlayBtnWishlist}
@@ -411,7 +388,7 @@ const ProductCard = ({ product }) => {
                 <FiEye style={{ width: "20px", height: "20px" }} />
               </button>
             </div>
-          </motion.div>
+          </div>
 
           {/* Status Badges */}
           {product.status === "revoked" && (

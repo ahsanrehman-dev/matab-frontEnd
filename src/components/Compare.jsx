@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import api from "../utils/api";
+import { useCart } from "../context/CartContext";
 import {
   FiSearch,
   FiX,
@@ -18,6 +19,7 @@ import {
 const Compare = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   const [compareItems, setCompareItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -141,19 +143,11 @@ const Compare = () => {
     }).format(price);
   };
 
-  const handleAddToCart = async (productId) => {
+  const handleAddToCart = async (product) => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/login");
-        return;
-      }
-
-      await api.post("/cart", { productId, quantity: 1 });
-      alert("Added to cart successfully!");
+      await addToCart(product._id, 1, product);
     } catch (error) {
       console.error("Error adding to cart:", error);
-      alert("Failed to add to cart");
     }
   };
 
@@ -565,7 +559,7 @@ const Compare = () => {
                       <td key={product._id} className="p-6">
                         <div className="space-y-3">
                           <button
-                            onClick={() => handleAddToCart(product._id)}
+                            onClick={() => handleAddToCart(product)}
                             disabled={product.quantity === 0}
                             className={`w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-bold text-sm transition-all duration-200 shadow-md ${product.quantity === 0
                                 ? "bg-gray-200 text-gray-400 cursor-not-allowed"

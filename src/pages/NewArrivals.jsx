@@ -4,11 +4,13 @@ import { motion } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { FiStar, FiShoppingCart, FiHeart, FiClock } from "react-icons/fi";
 import api, { API_BASE_URL, productApi } from "../utils/api";
+import { useCart } from "../context/CartContext";
 
 const NewArrivals = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { addToCart } = useCart();
 
   const getImageUrl = (url) => {
     if (!url) return "";
@@ -159,7 +161,10 @@ const NewArrivals = () => {
                 </div>
 
                 <div className="flex items-center gap-2 p-5 pt-0">
-                  <button className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all">
+                  <button
+                    onClick={() => addToCart(product._id, 1, product)}
+                    className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all"
+                  >
                     <FiShoppingCart /> Add to Cart
                   </button>
                   <button className="p-2 border border-gray-200 rounded-lg hover:text-red-500 hover:border-red-300 transition-all">

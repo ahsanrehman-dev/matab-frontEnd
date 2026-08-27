@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { FiHeart, FiTrash2, FiShoppingCart, FiEye } from "react-icons/fi";
 import { Link } from "react-router-dom";
-import api, { API_BASE_URL, cartApi } from "../../utils/api";
+import api, { API_BASE_URL } from "../../utils/api";
+import { useCart } from "../../context/CartContext";
 
 const Wishlist = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { addToCart } = useCart();
 
   const getImageUrl = (url) => {
     if (!url) return "";
@@ -43,12 +45,11 @@ const Wishlist = () => {
     }
   };
 
-  const addToCart = async (productId) => {
+  const handleAddToCart = async (product) => {
     try {
-      await cartApi.addToCart(productId, 1);
-      alert("Added to cart successfully!");
+      await addToCart(product._id, 1, product);
     } catch (err) {
-      alert(err.message);
+      console.error(err);
     }
   };
 
@@ -145,7 +146,7 @@ const Wishlist = () => {
 
                 <div className="flex items-center gap-3">
                   <button
-                    onClick={() => addToCart(item.productId._id)}
+                    onClick={() => handleAddToCart(item.productId)}
                     disabled={item.productId.quantity === 0}
                     className={`flex-1 px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition-all ${item.productId.quantity === 0
                       ? "bg-gray-300 text-gray-600 cursor-not-allowed"

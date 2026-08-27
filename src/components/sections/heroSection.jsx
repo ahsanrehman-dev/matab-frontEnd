@@ -166,7 +166,7 @@ const HeroSection = () => {
       </motion.div>
 
       {/* Indicators */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+      <div className="absolute bottom-11 left-1/2 transform -translate-x-1/2 z-20">
         <div className="flex items-center space-x-3">
           {backgroundImages.map((_, index) => (
             <motion.button

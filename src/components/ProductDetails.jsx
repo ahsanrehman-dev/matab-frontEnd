@@ -64,16 +64,11 @@ const ProductDetails = () => {
   }, [isAuthenticated, productId]);
 
   const handleAddToCart = async () => {
-    if (!isAuthenticated) {
-      navigate("/login");
-      return;
-    }
     setIsAddingToCart(true);
     try {
-      await addToCart(product._id, quantity);
-      alert("Added to cart!");
+      await addToCart(product._id, quantity, product);
     } catch {
-      alert("Failed to add to cart");
+      // toast is shown by cart context
     } finally {
       setIsAddingToCart(false);
     }
@@ -335,7 +330,7 @@ const ProductDetails = () => {
                 <button
                   onClick={handleBuyNow}
                   disabled={product.quantity <= 0}
-                  className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-lg transition-all shadow-md ${product.quantity <= 0
+                  className={`cursor-pointer w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-lg transition-all shadow-md ${product.quantity <= 0
                     ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                     : "bg-gradient-to-r from-emerald-600 to-green-600 text-white hover:shadow-xl hover:shadow-green-500/30 hover:-translate-y-0.5"
                     }`}

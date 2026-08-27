@@ -2,10 +2,8 @@ import { useState, useEffect } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
-import { useToast } from "../context/ToastContext";
-import { cartApi, productApi } from "../utils/api";
+import { productApi } from "../utils/api";
 import {
   FiStar,
   FiShoppingCart,
@@ -33,9 +31,7 @@ const CustomerProducts = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-  const { fetchCartCount } = useCart();
-  const { showSuccess, showError } = useToast();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -157,30 +153,12 @@ const CustomerProducts = () => {
     navigate("/checkout", { state: { buyNow: true } });
   };
 
-  const handleAddToCart = async (productId) => {
-    console.log('Adding to cart, productId:', productId);
-    console.log('Is authenticated:', isAuthenticated);
-
-    if (!isAuthenticated) {
-      showError('Please log in to add items to your cart');
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 2000);
-      return;
-    }
-
-    setAddingToCart(productId);
+  const handleAddToCart = async (product) => {
+    setAddingToCart(product._id);
     try {
-      console.log('Calling cartApi.addToCart...');
-      const response = await cartApi.addToCart(productId, 1);
-      console.log('Cart API response:', response);
-
-      await fetchCartCount();
-      showSuccess('Product added to cart successfully!');
+      await addToCart(product._id, 1, product);
     } catch (error) {
       console.error('Failed to add product to cart:', error);
-      console.error('Error details:', error.response);
-      showError(error.message || 'Failed to add product to cart');
     } finally {
       setAddingToCart(null);
     }
@@ -507,7 +485,7 @@ const CustomerProducts = () => {
                     </button>
                     <div className="flex gap-3">
                     <button
-                      onClick={() => handleAddToCart(product._id)}
+                      onClick={() => handleAddToCart(product)}
                       disabled={product.quantity === 0 || addingToCart === product._id}
                       className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all shadow-md ${product.quantity === 0 || addingToCart === product._id
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"

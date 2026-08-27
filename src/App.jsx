@@ -283,13 +283,13 @@ const AppRoutes = () => {
 const App = () => (
   <ErrorBoundary>
     <AuthProvider>
-      <CartProvider>
-        <ToastProvider>
+      <ToastProvider>
+        <CartProvider>
           <BrowserRouter>
             <AppRoutes />
           </BrowserRouter>
-        </ToastProvider>
-      </CartProvider>
+        </CartProvider>
+      </ToastProvider>
     </AuthProvider>
   </ErrorBoundary>
 );

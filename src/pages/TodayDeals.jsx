@@ -11,11 +11,13 @@ import {
 } from "react-icons/fi";
 import "./TodayDeals.css";
 import api, { API_BASE_URL, productApi } from "../utils/api";
+import { useCart } from "../context/CartContext";
 
 const TodayDeals = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { addToCart } = useCart();
   const [timeLeft, setTimeLeft] = useState({
     hours: 23,
     minutes: 59,
@@ -210,7 +212,10 @@ const TodayDeals = () => {
                   </Link>
 
                   <div className="product-actions">
-                    <button className="btn add-to-cart">
+                    <button
+                      className="btn add-to-cart"
+                      onClick={() => addToCart(product._id, 1, product)}
+                    >
                       <FiShoppingCart /> Add to Cart
                     </button>
                     <button className="btn-secondary wishlist">
