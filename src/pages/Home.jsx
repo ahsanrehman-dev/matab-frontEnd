@@ -454,6 +454,17 @@ const EnhancedProductCard = ({ product, isDark = false }) => {
   };
 
   // Action handlers with API calls
+  const handleBuyNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!product.quantity || product.quantity <= 0) return;
+    sessionStorage.setItem(
+      "buyNowItem",
+      JSON.stringify({ product, quantity: 1 })
+    );
+    navigate("/checkout", { state: { buyNow: true } });
+  };
+
   const handleAddToCart = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -648,6 +659,19 @@ const EnhancedProductCard = ({ product, isDark = false }) => {
               <span className="text-red-500 font-medium">Out of stock</span>
             )}
           </div>
+
+          <button
+            type="button"
+            onClick={handleBuyNow}
+            disabled={!product.quantity || product.quantity <= 0}
+            className={`w-full mt-2 py-2 rounded-lg text-sm font-semibold transition-all ${
+              !product.quantity || product.quantity <= 0
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-emerald-600 text-white hover:bg-emerald-700"
+            }`}
+          >
+            Buy Now
+          </button>
         </div>
       </div>
     </Link>

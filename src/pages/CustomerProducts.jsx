@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useAuth } from "../context/AuthContext";
@@ -32,6 +32,7 @@ const CustomerProducts = () => {
   const [addingToCart, setAddingToCart] = useState(null);
 
   const location = useLocation();
+  const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { fetchCartCount } = useCart();
   const { showSuccess, showError } = useToast();
@@ -145,6 +146,15 @@ const CustomerProducts = () => {
     setSelectedCategory("all");
     setPriceRange({ min: "", max: "" });
     setSortBy("newest");
+  };
+
+  const handleBuyNow = (product) => {
+    if (!product || product.quantity === 0) return;
+    sessionStorage.setItem(
+      "buyNowItem",
+      JSON.stringify({ product, quantity: 1 })
+    );
+    navigate("/checkout", { state: { buyNow: true } });
   };
 
   const handleAddToCart = async (productId) => {
@@ -483,7 +493,19 @@ const CustomerProducts = () => {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-3 mt-auto">
+                  <div className="flex flex-col gap-3 mt-auto">
+                    <button
+                      onClick={() => handleBuyNow(product)}
+                      disabled={product.quantity === 0}
+                      className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all shadow-md ${product.quantity === 0
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-gradient-to-r from-emerald-600 to-green-600 text-white hover:shadow-xl hover:shadow-green-500/30 hover:-translate-y-0.5"
+                        }`}
+                    >
+                      <FiPackage className="w-4 h-4" />
+                      {product.quantity === 0 ? "Out of Stock" : "Buy Now"}
+                    </button>
+                    <div className="flex gap-3">
                     <button
                       onClick={() => handleAddToCart(product._id)}
                       disabled={product.quantity === 0 || addingToCart === product._id}
@@ -504,6 +526,7 @@ const CustomerProducts = () => {
                     <button className="w-12 h-12 flex items-center justify-center bg-white border-2 border-gray-300 text-gray-700 rounded-xl hover:border-red-400 hover:text-red-600 hover:bg-red-50 transition-all shadow-md">
                       <FiHeart className="w-5 h-5" />
                     </button>
+                    </div>
                   </div>
                 </div>
               </motion.div>

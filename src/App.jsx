@@ -15,7 +15,6 @@ import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import ResponsiveFooter from "./components/ResponsiveFooter";
 import ResponsiveSidebar from "./components/ResponsiveSidebar";
-import LoadingSpinner from "./components/LoadingSpinner";
 import UserProfile from "./pages/UserProfile";
 import ProductDetails from "./components/ProductDetails";
 import CategoryPage from "./pages/CategoryPage";
@@ -39,15 +38,10 @@ import Navbar from "./components/Navbar";
 
 // eslint-disable-next-line react/prop-types
 const Layout = ({ children }) => {
-  const { loading } = useAuth();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const showNavbar = !location.pathname.startsWith("/dashboard");
-
-  if (loading) {
-    return <LoadingSpinner fullScreen text="Loading..." />;
-  }
 
   return (
     <>
@@ -82,9 +76,7 @@ const getRedirectPath = (user) => {
 };
 
 const AppRoutes = () => {
-  const { isAuthenticated, user, loading } = useAuth();
-
-  if (loading) return <LoadingSpinner fullScreen text="Loading..." />;
+  const { isAuthenticated, user } = useAuth();
 
   return (
     <Routes>
@@ -222,13 +214,9 @@ const AppRoutes = () => {
       <Route
         path="/checkout"
         element={
-          isAuthenticated ? (
-            <Layout>
-              <Checkout />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
+          <Layout>
+            <Checkout />
+          </Layout>
         }
       />
       {/* Customer Products Route */}

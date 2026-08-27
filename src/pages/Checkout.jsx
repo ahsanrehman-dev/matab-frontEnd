@@ -1,6 +1,6 @@
 // pages/Checkout.jsx
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
     FiPackage,
@@ -18,23 +18,49 @@ import {
 import { useAuth } from "../context/AuthContext";
 import api, { API_BASE_URL } from "../utils/api";
 
+const getStoredBuyNowItem = () => {
+    try {
+        const raw = sessionStorage.getItem("buyNowItem");
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+};
+
+const buildCartFromBuyNow = (buyNowItem) => {
+    if (!buyNowItem?.product) return null;
+    const quantity = buyNowItem.quantity || 1;
+    const price = buyNowItem.product.price || 0;
+    return {
+        items: [
+            {
+                _id: `buy-now-${buyNowItem.product._id}`,
+                product: buyNowItem.product,
+                quantity,
+            },
+        ],
+        totalItems: quantity,
+        totalPrice: price * quantity,
+    };
+};
+
 const Checkout = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, isAuthenticated } = useAuth();
     const [loading, setLoading] = useState(true);
     const [orderPlaced, setOrderPlaced] = useState(false);
     const [orderDetails, setOrderDetails] = useState(null);
     const [cartData, setCartData] = useState(null);
+    const [isBuyNow, setIsBuyNow] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
 
     const [shippingAddress, setShippingAddress] = useState({
-        firstName: "",
-        lastName: "",
+        fullName: "",
         email: "",
         phone: "",
-        street: "",
+        address: "",
         city: "",
-        state: "",
-        zipCode: "",
         country: "Pakistan",
     });
 
@@ -42,22 +68,34 @@ const Checkout = () => {
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            navigate("/login");
+        const stored = getStoredBuyNowItem();
+        const buyNowItem =
+            location.state?.buyNowItem ||
+            (location.state?.buyNow ? stored : null) ||
+            (!isAuthenticated ? stored : null);
+
+        if (user) {
+            setShippingAddress((prev) => ({
+                ...prev,
+                fullName: prev.fullName || user.username || "",
+                email: prev.email || user.email || "",
+            }));
+        }
+
+        if (buyNowItem?.product) {
+            setIsBuyNow(true);
+            setCartData(buildCartFromBuyNow(buyNowItem));
+            setLoading(false);
             return;
         }
 
-        fetchCart();
-        if (user) {
-            const nameParts = (user.username || "").split(" ");
-            setShippingAddress((prev) => ({
-                ...prev,
-                firstName: nameParts[0] || "",
-                lastName: nameParts.slice(1).join(" ") || "",
-                email: user.email || "",
-            }));
+        if (isAuthenticated) {
+            fetchCart();
+            return;
         }
-    }, [isAuthenticated, navigate, user]);
+
+        setLoading(false);
+    }, [isAuthenticated, location.state, user]);
 
     const getImageUrl = (url) => {
         if (!url) return "";
@@ -102,10 +140,8 @@ const Checkout = () => {
     const validateForm = () => {
         const newErrors = {};
 
-        if (!shippingAddress.firstName.trim())
-            newErrors.firstName = "First name is required";
-        if (!shippingAddress.lastName.trim())
-            newErrors.lastName = "Last name is required";
+        if (!shippingAddress.fullName.trim())
+            newErrors.fullName = "Full name is required";
         if (!shippingAddress.email.trim())
             newErrors.email = "Email is required";
         else if (!/\S+@\S+\.\S+/.test(shippingAddress.email))
@@ -114,17 +150,30 @@ const Checkout = () => {
             newErrors.phone = "Phone is required";
         else if (!/^[\d\s\-\+\(\)]+$/.test(shippingAddress.phone))
             newErrors.phone = "Phone number is invalid";
-        if (!shippingAddress.street.trim())
-            newErrors.street = "Street address is required";
+        if (!shippingAddress.address.trim())
+            newErrors.address = "Address is required";
         if (!shippingAddress.city.trim())
             newErrors.city = "City is required";
-        if (!shippingAddress.state.trim())
-            newErrors.state = "State/Province is required";
-        if (!shippingAddress.zipCode.trim())
-            newErrors.zipCode = "Postal code is required";
+        if (!paymentMethod)
+            newErrors.paymentMethod = "Please select a payment method";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
+    };
+
+    const getApiShippingAddress = () => {
+        const nameParts = shippingAddress.fullName.trim().split(" ");
+        return {
+            firstName: nameParts[0] || "",
+            lastName: nameParts.slice(1).join(" ") || nameParts[0] || "",
+            email: shippingAddress.email,
+            phone: shippingAddress.phone,
+            street: shippingAddress.address,
+            city: shippingAddress.city,
+            state: shippingAddress.city,
+            zipCode: "",
+            country: shippingAddress.country || "Pakistan",
+        };
     };
 
     const handlePlaceOrder = async () => {
@@ -138,13 +187,27 @@ const Checkout = () => {
         try {
             setLoading(true);
 
-            const response = await api.post("/user/orders", {
-                shippingAddress,
-                paymentMethod: "cash_on_delivery",
-                notes
-            });
+            const apiShippingAddress = getApiShippingAddress();
+            let response = null;
 
-            // ✅ Build product info string
+            if (isAuthenticated) {
+                if (isBuyNow) {
+                    const buyNowItem = getStoredBuyNowItem();
+                    if (buyNowItem?.product?._id) {
+                        await api.post("/cart", {
+                            productId: buyNowItem.product._id,
+                            quantity: buyNowItem.quantity || 1,
+                        });
+                    }
+                }
+
+                response = await api.post("/user/orders", {
+                    shippingAddress: apiShippingAddress,
+                    paymentMethod,
+                    notes,
+                });
+            }
+
             const productDetails = cartData.items
                 .map(
                     (item) =>
@@ -154,18 +217,16 @@ const Checkout = () => {
                 )
                 .join("\n");
 
-            // ✅ Complete WhatsApp message
             const message = `
 📦 *New Order Received!*
 
-👤 *Customer:* ${shippingAddress.firstName} ${shippingAddress.lastName}
+👤 *Customer:* ${shippingAddress.fullName}
 📧 *Email:* ${shippingAddress.email}
 📱 *Phone:* ${shippingAddress.phone}
 
 🏠 *Address:*
-${shippingAddress.street},
-${shippingAddress.city}, ${shippingAddress.state}
-${shippingAddress.zipCode}, ${shippingAddress.country}
+${shippingAddress.address},
+${shippingAddress.city}, ${shippingAddress.country}
 
 🛒 *Order Items:*
 ${productDetails}
@@ -181,14 +242,25 @@ ${productDetails}
 Payment: Cash on Delivery
             `;
 
-            const phoneNumber = "923191997277"; // your WhatsApp number
+            const phoneNumber = "923191997277";
             const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
                 message
             )}`;
 
             window.open(url, "_blank");
 
-            setOrderDetails(response.order || response);
+            sessionStorage.removeItem("buyNowItem");
+            setOrderDetails(
+                response?.order ||
+                    response || {
+                        subtotal,
+                        shippingCost,
+                        tax,
+                        total,
+                        status: "pending",
+                        paymentMethod,
+                    }
+            );
             setOrderPlaced(true);
         } catch (error) {
             console.log(error);
@@ -379,43 +451,23 @@ Payment: Cash on Delivery
                             </div>
 
                             <div className="space-y-5">
-                                <div className="grid md:grid-cols-2 gap-5">
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-900 mb-2">
-                                            <FiUser className="inline w-4 h-4 mr-2" />
-                                            First Name *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="firstName"
-                                            value={shippingAddress.firstName}
-                                            onChange={handleChange}
-                                            className={`w-full px-4 py-3 bg-gray-50 border-2 rounded-xl focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all ${errors.firstName ? "border-red-500" : "border-gray-200"
-                                                }`}
-                                            placeholder="John"
-                                        />
-                                        {errors.firstName && (
-                                            <p className="text-red-600 text-xs mt-1">{errors.firstName}</p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-900 mb-2">
-                                            Last Name *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="lastName"
-                                            value={shippingAddress.lastName}
-                                            onChange={handleChange}
-                                            className={`w-full px-4 py-3 bg-gray-50 border-2 rounded-xl focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all ${errors.lastName ? "border-red-500" : "border-gray-200"
-                                                }`}
-                                            placeholder="Doe"
-                                        />
-                                        {errors.lastName && (
-                                            <p className="text-red-600 text-xs mt-1">{errors.lastName}</p>
-                                        )}
-                                    </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                                        <FiUser className="inline w-4 h-4 mr-2" />
+                                        Full Name *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="fullName"
+                                        value={shippingAddress.fullName}
+                                        onChange={handleChange}
+                                        className={`w-full px-4 py-3 bg-gray-50 border-2 rounded-xl focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all ${errors.fullName ? "border-red-500" : "border-gray-200"
+                                            }`}
+                                        placeholder="Your full name"
+                                    />
+                                    {errors.fullName && (
+                                        <p className="text-red-600 text-xs mt-1">{errors.fullName}</p>
+                                    )}
                                 </div>
 
                                 <div className="grid md:grid-cols-2 gap-5">
@@ -461,76 +513,61 @@ Payment: Cash on Delivery
                                 <div>
                                     <label className="block text-sm font-bold text-gray-900 mb-2">
                                         <FiMapPin className="inline w-4 h-4 mr-2" />
-                                        Street Address *
+                                        Address *
                                     </label>
                                     <input
                                         type="text"
-                                        name="street"
-                                        value={shippingAddress.street}
+                                        name="address"
+                                        value={shippingAddress.address}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-gray-50 border-2 rounded-xl focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all ${errors.street ? "border-red-500" : "border-gray-200"
+                                        className={`w-full px-4 py-3 bg-gray-50 border-2 rounded-xl focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all ${errors.address ? "border-red-500" : "border-gray-200"
                                             }`}
                                         placeholder="House/Flat number, Street name"
                                     />
-                                    {errors.street && (
-                                        <p className="text-red-600 text-xs mt-1">{errors.street}</p>
+                                    {errors.address && (
+                                        <p className="text-red-600 text-xs mt-1">{errors.address}</p>
                                     )}
                                 </div>
 
-                                <div className="grid md:grid-cols-3 gap-5">
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-900 mb-2">
-                                            City *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="city"
-                                            value={shippingAddress.city}
-                                            onChange={handleChange}
-                                            className={`w-full px-4 py-3 bg-gray-50 border-2 rounded-xl focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all ${errors.city ? "border-red-500" : "border-gray-200"
-                                                }`}
-                                            placeholder="Multan"
-                                        />
-                                        {errors.city && (
-                                            <p className="text-red-600 text-xs mt-1">{errors.city}</p>
-                                        )}
-                                    </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                                        City *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="city"
+                                        value={shippingAddress.city}
+                                        onChange={handleChange}
+                                        className={`w-full px-4 py-3 bg-gray-50 border-2 rounded-xl focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all ${errors.city ? "border-red-500" : "border-gray-200"
+                                            }`}
+                                        placeholder="Multan"
+                                    />
+                                    {errors.city && (
+                                        <p className="text-red-600 text-xs mt-1">{errors.city}</p>
+                                    )}
+                                </div>
 
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-900 mb-2">
-                                            State/Province *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="state"
-                                            value={shippingAddress.state}
-                                            onChange={handleChange}
-                                            className={`w-full px-4 py-3 bg-gray-50 border-2 rounded-xl focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all ${errors.state ? "border-red-500" : "border-gray-200"
-                                                }`}
-                                            placeholder="Punjab"
-                                        />
-                                        {errors.state && (
-                                            <p className="text-red-600 text-xs mt-1">{errors.state}</p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-900 mb-2">
-                                            Postal Code *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="zipCode"
-                                            value={shippingAddress.zipCode}
-                                            onChange={handleChange}
-                                            className={`w-full px-4 py-3 bg-gray-50 border-2 rounded-xl focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all ${errors.zipCode ? "border-red-500" : "border-gray-200"
-                                                }`}
-                                            placeholder="60000"
-                                        />
-                                        {errors.zipCode && (
-                                            <p className="text-red-600 text-xs mt-1">{errors.zipCode}</p>
-                                        )}
-                                    </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                                        <FiCreditCard className="inline w-4 h-4 mr-2" />
+                                        Payment Method *
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setPaymentMethod("cash_on_delivery")}
+                                        className={`w-full text-left px-4 py-4 rounded-xl border-2 transition-all ${paymentMethod === "cash_on_delivery"
+                                            ? "border-blue-600 bg-blue-50 ring-4 ring-blue-500/10"
+                                            : "border-gray-200 bg-gray-50 hover:border-gray-300"
+                                            }`}
+                                    >
+                                        <p className="font-bold text-gray-900">COD (Cash on Delivery)</p>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Pay when you receive your order
+                                        </p>
+                                    </button>
+                                    {errors.paymentMethod && (
+                                        <p className="text-red-600 text-xs mt-1">{errors.paymentMethod}</p>
+                                    )}
                                 </div>
 
                                 <div>
@@ -625,7 +662,9 @@ Payment: Cash on Delivery
                                     </span>
                                 </div>
                                 <p className="text-sm text-gray-700 font-semibold">
-                                    Cash on Delivery
+                                    {paymentMethod === "cash_on_delivery"
+                                        ? "COD (Cash on Delivery)"
+                                        : paymentMethod}
                                 </p>
                                 <p className="text-xs text-gray-600 mt-1">
                                     Pay when you receive your order

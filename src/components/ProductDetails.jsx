@@ -79,6 +79,15 @@ const ProductDetails = () => {
     }
   };
 
+  const handleBuyNow = () => {
+    if (product.quantity <= 0) return;
+    sessionStorage.setItem(
+      "buyNowItem",
+      JSON.stringify({ product, quantity })
+    );
+    navigate("/checkout", { state: { buyNow: true } });
+  };
+
   const handleWishlist = async () => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -323,6 +332,17 @@ const ProductDetails = () => {
 
               {/* Action Buttons */}
               <div className="space-y-3 mb-6">
+                <button
+                  onClick={handleBuyNow}
+                  disabled={product.quantity <= 0}
+                  className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-lg transition-all shadow-md ${product.quantity <= 0
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-emerald-600 to-green-600 text-white hover:shadow-xl hover:shadow-green-500/30 hover:-translate-y-0.5"
+                    }`}
+                >
+                  <FiPackage className="w-5 h-5" />
+                  Buy Now
+                </button>
                 <button
                   onClick={handleAddToCart}
                   disabled={isAddingToCart || product.quantity <= 0}
