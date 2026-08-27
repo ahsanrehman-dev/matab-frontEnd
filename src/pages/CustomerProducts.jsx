@@ -477,7 +477,7 @@ const CustomerProducts = () => {
                       disabled={product.quantity === 0}
                       className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all shadow-md ${product.quantity === 0
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : "bg-gradient-to-r from-emerald-600 to-green-600 text-white hover:shadow-xl hover:shadow-green-500/30 hover:-translate-y-0.5"
+                        : "cursor-pointer bg-gradient-to-r from-emerald-600 to-green-600 text-white hover:shadow-xl hover:shadow-green-500/30 hover:-translate-y-0.5"
                         }`}
                     >
                       <FiPackage className="w-4 h-4" />
@@ -489,7 +489,7 @@ const CustomerProducts = () => {
                       disabled={product.quantity === 0 || addingToCart === product._id}
                       className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all shadow-md ${product.quantity === 0 || addingToCart === product._id
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5"
+                        : "cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5"
                         }`}
                     >
                       <FiShoppingCart className="w-4 h-4" />

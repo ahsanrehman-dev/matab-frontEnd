@@ -3,7 +3,7 @@ import LoadingSpinner from '../LoadingSpinner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiHeart, FiTrash2, FiShoppingCart, FiEye, FiStar, FiPackage, FiX } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-import api, { API_BASE_URL } from '../../utils/api';
+import api from '../../utils/api';
 import { useCart } from '../../context/CartContext';
 
 const Favorites = () => {
@@ -17,8 +17,7 @@ const Favorites = () => {
   const getImageUrl = (url) => {
     if (!url) return "";
     if (url.startsWith("http") || url.startsWith("data:")) return url;
-    const baseUrl = API_BASE_URL.replace('/api', '');
-    return `${baseUrl}${url}`;
+    return `${process.env.Backend_Url}${url}`;
   };
 
   useEffect(() => {
@@ -247,7 +246,7 @@ const Favorites = () => {
                     <button
                       onClick={() => handleAddToCart(item.productId)}
                       disabled={item.productId.quantity === 0}
-                      className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center space-x-2"
+                      className="flex-1 cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                     >
                       <FiShoppingCart className="w-4 h-4" />
                       <span>Add to Cart</span>

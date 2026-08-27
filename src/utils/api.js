@@ -1,7 +1,4 @@
-// Use production URL in build, or VITE_API_URL in dev (fallback to production)
-export const API_BASE_URL = import.meta.env.PROD
-    ? 'https://matab-ecommerce-backend.vercel.app/api'
-    : (import.meta.env.VITE_API_URL || 'https://matab-ecommerce-backend.vercel.app/api');
+export const API_BASE_URL = `${process.env.Backend_Url}/api`;
 
 class ApiError extends Error {
     constructor(message, status, response) {

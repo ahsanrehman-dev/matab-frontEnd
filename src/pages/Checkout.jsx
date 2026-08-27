@@ -17,7 +17,7 @@ import {
 } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
-import api, { API_BASE_URL } from "../utils/api";
+import api from "../utils/api";
 
 const getStoredBuyNowItem = () => {
     try {
@@ -114,8 +114,7 @@ const Checkout = () => {
     const getImageUrl = (url) => {
         if (!url) return "";
         if (url.startsWith("http") || url.startsWith("data:")) return url;
-        const baseUrl = API_BASE_URL.replace('/api', '');
-        return `${baseUrl}${url}`;
+        return `${process.env.Backend_Url}${url}`;
     };
 
     const fetchCart = async () => {

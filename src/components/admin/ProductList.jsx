@@ -8,7 +8,7 @@ import { FiEdit, FiTrash2, FiPlus, FiEye, FiPackage } from "react-icons/fi";
 import ProductEditForm from "./ProductEditForm";
 import "./ProductList.css";
 import PropTypes from "prop-types";
-import api, { API_BASE_URL } from "../../utils/api";
+import api from "../../utils/api";
 
 const ProductList = forwardRef(({ onAddProduct }, ref) => {
   const [products, setProducts] = useState([]);
@@ -104,8 +104,7 @@ const ProductList = forwardRef(({ onAddProduct }, ref) => {
   const getImageUrl = (url) => {
     if (!url) return "";
     if (url.startsWith("http") || url.startsWith("data:")) return url;
-    const baseUrl = API_BASE_URL.replace('/api', '');
-    return `${baseUrl}${url}`;
+    return `${process.env.Backend_Url}${url}`;
   };
 
   return (

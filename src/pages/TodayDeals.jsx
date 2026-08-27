@@ -10,7 +10,7 @@ import {
   FiPercent,
 } from "react-icons/fi";
 import "./TodayDeals.css";
-import api, { API_BASE_URL, productApi } from "../utils/api";
+import api, { productApi } from "../utils/api";
 import { useCart } from "../context/CartContext";
 
 const TodayDeals = () => {
@@ -66,8 +66,7 @@ const TodayDeals = () => {
   const getImageUrl = (url) => {
     if (!url) return "";
     if (url.startsWith("http") || url.startsWith("data:")) return url;
-    const baseUrl = API_BASE_URL.replace('/api', '');
-    return `${baseUrl}${url}`;
+    return `${process.env.Backend_Url}${url}`;
   };
 
   if (loading) return <LoadingSpinner fullScreen text="Loading today's deals..." />;
@@ -213,7 +212,7 @@ const TodayDeals = () => {
 
                   <div className="product-actions">
                     <button
-                      className="btn add-to-cart"
+                      className="btn add-to-cart cursor-pointer"
                       onClick={() => addToCart(product._id, 1, product)}
                     >
                       <FiShoppingCart /> Add to Cart

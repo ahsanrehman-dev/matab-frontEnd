@@ -18,7 +18,7 @@ import {
 } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
-import api, { API_BASE_URL } from "../utils/api";
+import api from "../utils/api";
 
 const ProductDetails = () => {
   const { productId } = useParams();
@@ -144,8 +144,7 @@ const ProductDetails = () => {
   const getImageUrl = (url) => {
     if (!url) return "";
     if (url.startsWith("http") || url.startsWith("data:")) return url;
-    const baseUrl = API_BASE_URL.replace('/api', '');
-    return `${baseUrl}${url}`;
+    return `${process.env.Backend_Url}${url}`;
   };
 
   const discount =
@@ -343,7 +342,7 @@ const ProductDetails = () => {
                   disabled={isAddingToCart || product.quantity <= 0}
                   className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-lg transition-all shadow-md ${product.quantity <= 0
                     ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5"
+                    : "cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5"
                     }`}
                 >
                   <FiShoppingCart className="w-5 h-5" />

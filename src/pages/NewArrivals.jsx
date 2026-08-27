@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { FiStar, FiShoppingCart, FiHeart, FiClock } from "react-icons/fi";
-import api, { API_BASE_URL, productApi } from "../utils/api";
+import api, { productApi } from "../utils/api";
 import { useCart } from "../context/CartContext";
 
 const NewArrivals = () => {
@@ -15,8 +15,7 @@ const NewArrivals = () => {
   const getImageUrl = (url) => {
     if (!url) return "";
     if (url.startsWith("http") || url.startsWith("data:")) return url;
-    const baseUrl = API_BASE_URL.replace('/api', '');
-    return `${baseUrl}${url}`;
+    return `${process.env.Backend_Url}${url}`;
   };
 
   useEffect(() => {
@@ -163,7 +162,7 @@ const NewArrivals = () => {
                 <div className="flex items-center gap-2 p-5 pt-0">
                   <button
                     onClick={() => addToCart(product._id, 1, product)}
-                    className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all"
+                    className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all cursor-pointer"
                   >
                     <FiShoppingCart /> Add to Cart
                   </button>

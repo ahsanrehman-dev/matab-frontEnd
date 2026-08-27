@@ -563,7 +563,7 @@ const Compare = () => {
                             disabled={product.quantity === 0}
                             className={`w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-bold text-sm transition-all duration-200 shadow-md ${product.quantity === 0
                                 ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5"
+                                : "cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5"
                               }`}
                           >
                             <FiShoppingCart className="w-5 h-5" />

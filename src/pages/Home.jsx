@@ -19,7 +19,7 @@ import {
 import HeroSection from "../components/sections/heroSection";
 import ProductSection from "../components/sections/ProductSection";
 import EmptyState from "../components/sections/EmptyState";
-import api, { API_BASE_URL } from "../utils/api";
+import api from "../utils/api";
 import { useCart } from "../context/CartContext";
 
 const Home = () => {
@@ -402,8 +402,7 @@ const EnhancedProductCard = ({ product, isDark = false }) => {
   const getImageUrl = (url) => {
     if (!url) return "";
     if (url.startsWith("http") || url.startsWith("data:")) return url;
-    const baseUrl = API_BASE_URL.replace('/api', '');
-    return `${baseUrl}${url}`;
+    return `${process.env.Backend_Url}${url}`;
   };
 
   const cardBg = isDark ? "bg-white bg-opacity-10 backdrop-blur-sm border-white border-opacity-20" : "bg-white border-gray-200";
@@ -648,7 +647,7 @@ const EnhancedProductCard = ({ product, isDark = false }) => {
             className={`w-full mt-1 py-2 rounded-lg text-sm font-semibold transition-colors duration-300 ${hoverEase} ${
               !product.quantity || product.quantity <= 0
                 ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : "bg-emerald-600 text-white hover:bg-emerald-700"
+                : "cursor-pointer bg-emerald-600 text-white hover:bg-emerald-700"
             }`}
           >
             Buy Now

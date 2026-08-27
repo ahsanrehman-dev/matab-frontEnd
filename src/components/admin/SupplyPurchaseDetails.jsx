@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiShoppingCart, FiPackage, FiUsers, FiDollarSign, FiCalendar, FiArrowRight, FiInfo } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
-import api, { API_BASE_URL } from "../../utils/api";
+import api from "../../utils/api";
 
 const SupplyPurchaseDetails = () => {
   const [data, setData] = useState(null);
@@ -12,8 +12,7 @@ const SupplyPurchaseDetails = () => {
   const getImageUrl = (url) => {
     if (!url) return "";
     if (url.startsWith("http") || url.startsWith("data:")) return url;
-    const baseUrl = API_BASE_URL.replace('/api', '');
-    return `${baseUrl}${url}`;
+    return `${process.env.Backend_Url}${url}`;
   };
 
   useEffect(() => {

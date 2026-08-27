@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { FiHeart, FiTrash2, FiShoppingCart, FiEye } from "react-icons/fi";
 import { Link } from "react-router-dom";
-import api, { API_BASE_URL } from "../../utils/api";
+import api from "../../utils/api";
 import { useCart } from "../../context/CartContext";
 
 const Wishlist = () => {
@@ -13,8 +13,7 @@ const Wishlist = () => {
   const getImageUrl = (url) => {
     if (!url) return "";
     if (url.startsWith("http") || url.startsWith("data:")) return url;
-    const baseUrl = API_BASE_URL.replace('/api', '');
-    return `${baseUrl}${url}`;
+    return `${process.env.Backend_Url}${url}`;
   };
 
   useEffect(() => {
@@ -150,7 +149,7 @@ const Wishlist = () => {
                     disabled={item.productId.quantity === 0}
                     className={`flex-1 px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition-all ${item.productId.quantity === 0
                       ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                      : "bg-blue-600 text-white hover:bg-blue-700"
+                      : "cursor-pointer bg-blue-600 text-white hover:bg-blue-700"
                       }`}
                   >
                     <FiShoppingCart /> Add to Cart

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
-import api, { API_BASE_URL } from "../utils/api";
+import api from "../utils/api";
 import { useCart } from "../context/CartContext";
 import {
   FiFilter,
@@ -93,8 +93,7 @@ const CategoryPage = () => {
   const getImageUrl = (url) => {
     if (!url) return "";
     if (url.startsWith("http") || url.startsWith("data:")) return url;
-    const baseUrl = API_BASE_URL.replace('/api', '');
-    return `${baseUrl}${url}`;
+    return `${process.env.Backend_Url}${url}`;
   };
 
   const filteredAndSortedProducts = sortProducts(
@@ -280,7 +279,7 @@ const CategoryPage = () => {
 
                   <div className="product-actions">
                     <button
-                      className="btn add-to-cart"
+                      className="btn add-to-cart cursor-pointer"
                       onClick={() => addToCart(product._id, 1, product)}
                     >
                       <FiShoppingCart /> Add to Cart

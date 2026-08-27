@@ -9,7 +9,6 @@ import {
   FiCreditCard,
 } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "../../utils/api";
 import { useCart } from "../../context/CartContext";
 
 const Cart = () => {
@@ -19,8 +18,7 @@ const Cart = () => {
   const getImageUrl = (url) => {
     if (!url) return "/placeholder-product.jpg";
     if (url.startsWith("http") || url.startsWith("data:")) return url;
-    const baseUrl = API_BASE_URL.replace("/api", "");
-    return `${baseUrl}${url}`;
+    return `${process.env.Backend_Url}${url}`;
   };
 
   const getProduct = (item) => item.product || {};
