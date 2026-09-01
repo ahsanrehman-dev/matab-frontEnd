@@ -1,4 +1,10 @@
-export const API_BASE_URL = `${process.env.Backend_Url}/api`;
+const backendUrl = (
+  process.env.Backend_Url ||
+  import.meta.env.VITE_BACKEND_URL ||
+  ""
+).replace(/\/+$/, "");
+
+export const API_BASE_URL = backendUrl ? `${backendUrl}/api` : "/api";
 
 class ApiError extends Error {
     constructor(message, status, response) {
