@@ -94,8 +94,20 @@ export const AuthProvider = ({ children }) => {
       const response = await authApi.register(userData);
 
       if (response.success) {
-        // If registration requires verification, don't login yet
-        // Instead return success so UI can redirect to verification page
+        // Email SMTP can be blocked on Render; backend may complete signup
+        // immediately and return a token instead of requiring OTP.
+        if (response.token && response.user) {
+          setUser(response.user);
+          localStorage.setItem("user", JSON.stringify(response.user));
+          localStorage.setItem("token", response.token);
+          return {
+            success: true,
+            requiresVerification: false,
+            data: response.user,
+            message: response.message,
+          };
+        }
+
         return {
           success: true,
           requiresVerification: true,

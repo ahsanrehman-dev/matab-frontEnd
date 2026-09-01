@@ -145,13 +145,19 @@ const handleResponse = async (response) => {
 // Generic request function
 const request = async (endpoint, options = {}) => {
     const url = `${API_BASE_URL}${endpoint}`;
+    const timeoutMs = options.timeout ?? 20000;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
     const config = {
         headers: createHeaders(options.includeAuth !== false, options.headers),
+        signal: controller.signal,
         ...options,
     };
 
     // Remove custom options that aren't fetch options
     delete config.includeAuth;
+    delete config.timeout;
 
     try {
         const response = await fetch(url, config);
@@ -163,12 +169,22 @@ const request = async (endpoint, options = {}) => {
             throw error;
         }
 
+        if (error.name === 'AbortError') {
+            throw new ApiError(
+                'The server took too long to respond. Please try again.',
+                0,
+                null
+            );
+        }
+
         // Network or other errors
         throw new ApiError(
             'Network error. Please check your connection.',
             0,
             null
         );
+    } finally {
+        clearTimeout(timer);
     }
 };
 
