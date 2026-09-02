@@ -38,30 +38,14 @@
 .spinner {
     position: relative;
     display: inline-block;
-    width: 40px;
-    height: 40px;
-}
-
-.loading-spinner.small .spinner {
-    width: 20px;
-    height: 20px;
-}
-
-.loading-spinner.large .spinner {
-    width: 60px;
-    height: 60px;
 }
 
 .spinner-ring {
     position: absolute;
-    inset: 0;
-    width: auto;
-    height: auto;
     border: 3px solid transparent;
     border-top: 3px solid currentColor;
     border-radius: 50%;
     animation: spin 1.2s linear infinite;
-    transition: none;
 }
 
 .spinner-ring:nth-child(1) {
@@ -69,25 +53,29 @@
 }
 
 .spinner-ring:nth-child(2) {
-    inset: 20%;
-    animation-delay: -0.4s;
+    animation-delay: 0.2s;
 }
 
 .spinner-ring:nth-child(3) {
-    inset: 40%;
-    animation-delay: -0.8s;
+    animation-delay: 0.4s;
 }
 
 /* Size variants */
 .loading-spinner.small .spinner-ring {
+    width: 20px;
+    height: 20px;
     border-width: 2px;
 }
 
 .loading-spinner.medium .spinner-ring {
+    width: 40px;
+    height: 40px;
     border-width: 3px;
 }
 
 .loading-spinner.large .spinner-ring {
+    width: 60px;
+    height: 60px;
     border-width: 4px;
 }
 

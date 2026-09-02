@@ -13,11 +13,6 @@ const LoadingSpinner = ({
     return (
         <div className={spinnerClass}>
             <div className="spinner-container">
-                <div className="spinner" aria-hidden="true">
-                    <div className="spinner-ring"></div>
-                    <div className="spinner-ring"></div>
-                    <div className="spinner-ring"></div>
-                </div>
                 {text && <p className="loading-text">{text}</p>}
             </div>
         </div>

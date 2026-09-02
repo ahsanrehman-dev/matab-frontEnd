@@ -122,13 +122,7 @@ const Home = () => {
     return categories.sort((a, b) => a.localeCompare(b));
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[70vh] bg-gray-50">
-        <LoadingSpinner size="large" text="Loading products..." />
-      </div>
-    );
-  }
+  if (loading) return <LoadingSpinner fullScreen text="Loading products..." />;
 
   if (error) {
     return (
