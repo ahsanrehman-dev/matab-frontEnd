@@ -46,7 +46,7 @@ const Layout = ({ children }) => {
     !location.pathname.startsWith("/admin");
 
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       {showNavbar && (
         <>
           <Navbar onMenuClick={() => setIsSidebarOpen(true)} />
@@ -56,9 +56,9 @@ const Layout = ({ children }) => {
           />
         </>
       )}
-      <main className="main-content">{children}</main>
+      <main className="main-content flex flex-1 flex-col">{children}</main>
       {showNavbar && <ResponsiveFooter />}
-    </>
+    </div>
   );
 };
 
