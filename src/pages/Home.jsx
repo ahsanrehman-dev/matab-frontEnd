@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import PropTypes from "prop-types";
-import LoadingSpinner from "../components/LoadingSpinner";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FiTrendingUp,
@@ -122,36 +121,6 @@ const Home = () => {
     return categories.sort((a, b) => a.localeCompare(b));
   };
 
-  if (loading) return <LoadingSpinner fullScreen text="Loading products..." />;
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50">
-        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8 px-4">
-          <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center">
-            <FiRefreshCw className="w-12 h-12 text-red-500" />
-          </div>
-          <div className="text-center space-y-4 max-w-md">
-            <h2 className="text-3xl font-bold text-gray-900">Oops! Something went wrong</h2>
-            <p className="text-gray-600 text-lg">{error}</p>
-            <p className="text-sm text-gray-500">
-              Don&apos;t worry, our team has been notified and we&apos;re working to fix this issue.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 
-                       text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 
-                       transform hover:-translate-y-0.5 transition-all duration-200 shadow-lg hover:shadow-xl"
-            >
-              <FiRefreshCw className="w-5 h-5" />
-              <span>Try Again</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Calculate all product sections
   const newArrivals = getNewArrivals();
   const trendingProducts = getTrendingProducts();
@@ -169,11 +138,36 @@ const Home = () => {
       transition={{ duration: 0.6 }}
     >
       {/* Hero Section */}
-      <HeroSection />
+      <HeroSection loading={loading} />
 
       {/* Main Content Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
+        {loading ? (
+          <HomeBodySkeleton />
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-8 px-4 py-16">
+            <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center">
+              <FiRefreshCw className="w-12 h-12 text-red-500" />
+            </div>
+            <div className="text-center space-y-4 max-w-md">
+              <h2 className="text-3xl font-bold text-gray-900">Oops! Something went wrong</h2>
+              <p className="text-gray-600 text-lg">{error}</p>
+              <p className="text-sm text-gray-500">
+                Don&apos;t worry, our team has been notified and we&apos;re working to fix this issue.
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 
+                         text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 
+                         transform hover:-translate-y-0.5 transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                <FiRefreshCw className="w-5 h-5" />
+                <span>Try Again</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
         {/* Quick Stats Bar - More compact */}
         <section className="py-8 -mt-16 relative z-10">
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
@@ -305,6 +299,8 @@ const Home = () => {
             />
           </section>
         )}
+          </>
+        )}
       </div>
       <button
         onClick={handleWhatsAppChat}
@@ -320,6 +316,26 @@ const Home = () => {
     </motion.div>
   );
 };
+
+const HomeBodySkeleton = () => (
+  <>
+    <section className="py-8 -mt-16 relative z-10">
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+          {[...Array(4)].map((_, index) => (
+            <div key={index} className="space-y-2 flex flex-col items-center animate-pulse">
+              <div className="w-16 h-8 bg-gray-200 rounded-lg" />
+              <div className="w-20 h-4 bg-gray-200 rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    <ProductSection loading title="Best Sellers" />
+    <ProductSection loading title="New Arrivals" />
+    <ProductSection loading title="Trending Now" />
+  </>
+);
 
 // Clean White Section Component
 const CleanProductSection = ({ title, subtitle, products, showViewAll, viewAllLink, icon }) => {

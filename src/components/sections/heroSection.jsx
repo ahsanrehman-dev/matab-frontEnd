@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -16,7 +17,7 @@ const backgroundImages = [
   "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDJ8fGVjb21tZXJjZXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=500"
 ];
 
-const HeroSection = () => {
+const HeroSection = ({ loading = false }) => {
   const [bgIndex, setBgIndex] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -88,6 +89,31 @@ const HeroSection = () => {
         initial="hidden"
         animate={isLoaded ? "visible" : "hidden"}
       >
+        {loading ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="text-left space-y-8 animate-pulse">
+              <div className="w-56 h-10 bg-white/20 rounded-full" />
+              <div className="space-y-4">
+                <div className="w-4/5 h-14 lg:h-20 bg-white/25 rounded-2xl" />
+                <div className="w-3/5 h-12 lg:h-16 bg-white/20 rounded-2xl" />
+                <div className="w-2/5 h-10 bg-white/15 rounded-xl" />
+              </div>
+              <div className="space-y-3 max-w-xl">
+                <div className="w-full h-5 bg-white/15 rounded-lg" />
+                <div className="w-5/6 h-5 bg-white/10 rounded-lg" />
+              </div>
+              <div className="flex flex-col sm:flex-row items-start gap-4 pt-4">
+                <div className="w-48 h-14 bg-white/25 rounded-2xl" />
+                <div className="w-40 h-14 bg-white/15 rounded-2xl" />
+              </div>
+              <div className="flex items-center gap-6 pt-4">
+                <div className="w-32 h-6 bg-white/15 rounded-lg" />
+                <div className="w-px h-6 bg-white/20" />
+                <div className="w-40 h-6 bg-white/15 rounded-lg" />
+              </div>
+            </div>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
           {/* Left Column */}
@@ -163,43 +189,48 @@ const HeroSection = () => {
           </div>
 
         </div>
+        )}
       </motion.div>
 
       {/* Indicators */}
-      <div className="absolute bottom-11 left-1/2 transform -translate-x-1/2 z-20">
-        <div className="flex items-center space-x-3">
-          {backgroundImages.map((_, index) => (
-            <motion.button
-              key={index}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${index === bgIndex
-                ? 'bg-white shadow-lg scale-125'
-                : 'bg-white/40 hover:bg-white/60'
-                }`}
-              onClick={() => setBgIndex(index)}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        className="absolute bottom-8 right-8 z-20"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        <div className="flex flex-col items-center space-y-2 text-white/60">
-          <span className="text-sm font-medium">Scroll to explore</span>
-          <div className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center">
-            <motion.div
-              className="w-1 h-3 bg-white/60 rounded-full mt-2"
-              animate={{ y: [0, 12, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
+      {!loading && (
+        <>
+          <div className="absolute bottom-11 left-1/2 transform -translate-x-1/2 z-20">
+            <div className="flex items-center space-x-3">
+              {backgroundImages.map((_, index) => (
+                <motion.button
+                  key={index}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${index === bgIndex
+                    ? 'bg-white shadow-lg scale-125'
+                    : 'bg-white/40 hover:bg-white/60'
+                    }`}
+                  onClick={() => setBgIndex(index)}
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.9 }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </motion.div>
+
+          {/* Scroll Indicator */}
+          <motion.div
+            className="absolute bottom-8 right-8 z-20"
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <div className="flex flex-col items-center space-y-2 text-white/60">
+              <span className="text-sm font-medium">Scroll to explore</span>
+              <div className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center">
+                <motion.div
+                  className="w-1 h-3 bg-white/60 rounded-full mt-2"
+                  animate={{ y: [0, 12, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
 
       {/* Floating Elements */}
       <div className="absolute inset-0 pointer-events-none">
@@ -247,6 +278,10 @@ const HeroSection = () => {
       </div>
     </section>
   );
+};
+
+HeroSection.propTypes = {
+  loading: PropTypes.bool,
 };
 
 export default HeroSection;
