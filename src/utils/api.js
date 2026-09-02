@@ -306,6 +306,9 @@ export const userApi = {
     getOrders: () => api.get('/user/orders'),
 
     createOrder: (orderData) => api.post('/user/orders', orderData),
+
+    createGuestOrder: (orderData) =>
+        api.post('/orders/guest', orderData, { includeAuth: false }),
 };
 
 // Vendor API helpers

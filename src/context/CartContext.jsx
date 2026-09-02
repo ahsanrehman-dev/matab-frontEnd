@@ -200,6 +200,22 @@ export const CartProvider = ({ children }) => {
     fetchCartCount();
   }, [fetchCartCount]);
 
+  const clearCart = async () => {
+    if (!isAuthenticated) {
+      saveGuestCart([]);
+      setCartState([]);
+      return;
+    }
+
+    try {
+      await cartApi.clearCart();
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+    } finally {
+      await fetchCartCount();
+    }
+  };
+
   const value = {
     cartCount,
     cartItems,
@@ -208,6 +224,7 @@ export const CartProvider = ({ children }) => {
     addToCart,
     removeFromCart,
     updateCartItemQuantity,
+    clearCart,
   };
 
   return (

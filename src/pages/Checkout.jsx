@@ -48,8 +48,8 @@ const buildCartFromBuyNow = (buyNowItem) => {
 const Checkout = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { user, isAuthenticated } = useAuth();
-    const { cartItems } = useCart();
+    const { user, isAuthenticated, loading: authLoading } = useAuth();
+    const { cartItems, fetchCartCount, clearCart } = useCart();
     const [loading, setLoading] = useState(true);
     const [placingOrder, setPlacingOrder] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState(false);
@@ -71,6 +71,8 @@ const Checkout = () => {
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
+        if (authLoading) return;
+
         const stored = getStoredBuyNowItem();
         const buyNowItem =
             location.state?.buyNowItem ||
@@ -110,7 +112,7 @@ const Checkout = () => {
         }
 
         setLoading(false);
-    }, [isAuthenticated, location.state, user, cartItems]);
+    }, [authLoading, isAuthenticated, location.state, user, cartItems]);
 
     const getImageUrl = (url) => {
         if (!url) return "";
@@ -202,6 +204,16 @@ const Checkout = () => {
             setPlacingOrder(true);
 
             const apiShippingAddress = getApiShippingAddress();
+            const orderItems = (cartData.items || []).map((item) => ({
+                productId: item.product?._id || item.productId,
+                quantity: item.quantity || 1,
+            }));
+
+            if (!orderItems.length || orderItems.some((item) => !item.productId)) {
+                alert("Your cart is invalid. Please add products again.");
+                return;
+            }
+
             let response = null;
 
             if (isAuthenticated) {
@@ -223,6 +235,17 @@ const Checkout = () => {
                         notes,
                     },
                     { timeout: 60000 }
+                );
+            } else {
+                response = await api.post(
+                    "/orders/guest",
+                    {
+                        shippingAddress: apiShippingAddress,
+                        paymentMethod,
+                        notes,
+                        items: orderItems,
+                    },
+                    { timeout: 60000, includeAuth: false }
                 );
             }
 
@@ -268,6 +291,15 @@ Payment: Cash on Delivery
             window.open(url, "_blank");
 
             sessionStorage.removeItem("buyNowItem");
+            try {
+                if (isAuthenticated) {
+                    await fetchCartCount();
+                } else {
+                    await clearCart();
+                }
+            } catch (clearError) {
+                console.error("Failed to refresh cart after order:", clearError);
+            }
             setOrderDetails(
                 response?.order ||
                     response || {
@@ -288,7 +320,7 @@ Payment: Cash on Delivery
         }
     };
 
-    if (loading) {
+    if (loading || authLoading) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40">
                 <div className="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-6" />
