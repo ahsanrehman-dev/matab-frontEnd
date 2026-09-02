@@ -18,7 +18,6 @@ const Register = () => {
     e.preventDefault();
     setError("");
 
-    // Input Validation
     const usernameRegex = /^[a-zA-Z0-9_]+$/;
     if (!usernameRegex.test(username)) {
       setError("Username can only contain letters, numbers, and underscores");
@@ -36,14 +35,13 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const result = await register({ username, email, password });
+      const result = await register({ username, email, password, role: "admin" });
 
       if (result.success) {
         if (result.requiresVerification) {
-          navigate("/verify-email", { state: { email: result.email } });
+          navigate("/admin/verify-email", { state: { email: result.email } });
         } else {
-          // Fallback for cases where verification isn't required (legacy or admin)
-          navigate("/");
+          navigate("/dashboard");
         }
       } else {
         setError(result.error);
@@ -58,7 +56,10 @@ const Register = () => {
   return (
     <div className="auth-page">
       <div className="auth-form">
-        <h2>Create Account</h2>
+        <h2>Admin Sign Up</h2>
+        <p style={{ textAlign: "center", marginBottom: "20px", color: "#666" }}>
+          Create an admin account to manage the store
+        </p>
         {error && <div className="auth-error">{error}</div>}
 
         <form onSubmit={handleSubmit}>
@@ -115,13 +116,13 @@ const Register = () => {
           </div>
 
           <button type="submit" className="auth-button" disabled={isLoading}>
-            {isLoading ? "Creating Account..." : "Register"}
+            {isLoading ? "Creating Account..." : "Create Admin Account"}
           </button>
         </form>
 
         <div className="auth-footer">
-          Already have an account?{" "}
-          <Link to="/login" className="auth-link">
+          Already have an admin account?{" "}
+          <Link to="/admin/login" className="auth-link">
             Login
           </Link>
         </div>

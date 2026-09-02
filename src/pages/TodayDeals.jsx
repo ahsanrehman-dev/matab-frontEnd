@@ -12,6 +12,7 @@ import {
 import "./TodayDeals.css";
 import api, { productApi } from "../utils/api";
 import { useCart } from "../context/CartContext";
+import { formatRs } from "../utils/currency";
 
 const TodayDeals = () => {
   const [products, setProducts] = useState([]);
@@ -189,12 +190,12 @@ const TodayDeals = () => {
 
                       <div className="product-price">
                         <span className="current-price">
-                          PKR {product.price.toLocaleString()}
+                          {formatRs(product.price)}
                         </span>
                         {product.originalPrice &&
                           product.originalPrice > product.price && (
                             <span className="original-price">
-                              PKR {product.originalPrice.toLocaleString()}
+                              {formatRs(product.originalPrice)}
                             </span>
                           )}
                       </div>

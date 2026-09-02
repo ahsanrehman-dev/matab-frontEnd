@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import api from "../utils/api";
 import { useCart } from "../context/CartContext";
+import { formatRs } from "../utils/currency";
 import {
   FiSearch,
   FiX,
@@ -136,12 +137,7 @@ const Compare = () => {
     return spec ? spec.value : "—";
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-  };
+  const formatPrice = (price) => formatRs(price);
 
   const handleAddToCart = async (product) => {
     try {
@@ -155,7 +151,7 @@ const Compare = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        navigate("/login");
+        navigate("/wishlist");
         return;
       }
 

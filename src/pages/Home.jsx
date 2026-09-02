@@ -21,6 +21,7 @@ import ProductSection from "../components/sections/ProductSection";
 import EmptyState from "../components/sections/EmptyState";
 import api from "../utils/api";
 import { useCart } from "../context/CartContext";
+import { formatRs } from "../utils/currency";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -409,14 +410,7 @@ const EnhancedProductCard = ({ product, isDark = false }) => {
   const textColor = isDark ? "text-white" : "text-gray-900";
   const subtextColor = isDark ? "text-blue-100" : "text-gray-600";
 
-  // Format price
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-PK", {
-      style: "currency",
-      currency: "PKR",
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+  const formatPrice = (price) => formatRs(price);
 
   // Get rating stars
   const getRatingStars = (rating = 4.5) => {
@@ -485,7 +479,7 @@ const EnhancedProductCard = ({ product, isDark = false }) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        navigate('/login');
+        navigate('/wishlist');
         return;
       }
 

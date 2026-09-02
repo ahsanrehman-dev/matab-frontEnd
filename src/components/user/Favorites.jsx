@@ -5,6 +5,7 @@ import { FiHeart, FiTrash2, FiShoppingCart, FiEye, FiStar, FiPackage, FiX } from
 import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 import { useCart } from '../../context/CartContext';
+import { formatRs } from '../../utils/currency';
 
 const Favorites = () => {
   const [favorites, setFavorites] = useState([]);
@@ -66,10 +67,7 @@ const Favorites = () => {
     }
   };
 
-  const formatPrice = (price) => new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(price);
+  const formatPrice = (price) => formatRs(price);
 
   const getRatingStars = (rating = 4.5) => {
     const stars = [];
@@ -108,10 +106,10 @@ const Favorites = () => {
         <h2 className="text-3xl font-bold text-gray-900 mb-2">Error Loading Favorites</h2>
         <p className="text-gray-600 mb-6">{error}</p>
         <Link
-          to="/login"
+          to="/"
           className="px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-all"
         >
-          Go to Login
+          Go Home
         </Link>
       </div>
     );

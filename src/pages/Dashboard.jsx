@@ -68,7 +68,7 @@ const Dashboard = () => {
         <div className="auth-error">
           <h2>Authentication Required</h2>
           <p>Please log in to access the dashboard.</p>
-          <button onClick={() => window.location.href = "/login"}>
+          <button onClick={() => window.location.href = "/admin/login"}>
             Go to Login
           </button>
         </div>

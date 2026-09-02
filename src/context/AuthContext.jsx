@@ -25,6 +25,11 @@ export const AuthProvider = ({ children }) => {
       if (token && userInfo) {
         try {
           const parsedUser = JSON.parse(userInfo);
+          if (parsedUser?.role !== "admin") {
+            clearAuthData();
+            setLoading(false);
+            return;
+          }
 
           // First set the user from localStorage for immediate UI update
           setUser(parsedUser);
@@ -33,8 +38,12 @@ export const AuthProvider = ({ children }) => {
           const response = await authApi.getProfile();
 
           if (response.success) {
-            setUser(response.user);
-            localStorage.setItem("user", JSON.stringify(response.user));
+            if (response.user?.role !== "admin") {
+              clearAuthData();
+            } else {
+              setUser(response.user);
+              localStorage.setItem("user", JSON.stringify(response.user));
+            }
           } else {
             clearAuthData();
           }
@@ -66,6 +75,13 @@ export const AuthProvider = ({ children }) => {
       const response = await authApi.login(email, password);
 
       if (response.success) {
+        if (response.user?.role !== "admin") {
+          clearAuthData();
+          return {
+            success: false,
+            error: "Only admin accounts can sign in.",
+          };
+        }
         setUser(response.user);
         localStorage.setItem("user", JSON.stringify(response.user));
         localStorage.setItem("token", response.token);
@@ -97,6 +113,13 @@ export const AuthProvider = ({ children }) => {
         // Email SMTP can be blocked on Render; backend may complete signup
         // immediately and return a token instead of requiring OTP.
         if (response.token && response.user) {
+          if (response.user?.role !== "admin") {
+            clearAuthData();
+            return {
+              success: false,
+              error: "Only admin accounts can be created.",
+            };
+          }
           setUser(response.user);
           localStorage.setItem("user", JSON.stringify(response.user));
           localStorage.setItem("token", response.token);
@@ -134,6 +157,13 @@ export const AuthProvider = ({ children }) => {
       const response = await authApi.verifyEmail(email, otp);
 
       if (response.success) {
+        if (response.user?.role !== "admin") {
+          clearAuthData();
+          return {
+            success: false,
+            error: "Only admin accounts can sign in.",
+          };
+        }
         setUser(response.user);
         localStorage.setItem("user", JSON.stringify(response.user));
         localStorage.setItem("token", response.token);
@@ -178,6 +208,7 @@ export const AuthProvider = ({ children }) => {
     verifyEmail,
     resendOTP,
     isAuthenticated: !!user,
+    isAdmin: user?.role === "admin",
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

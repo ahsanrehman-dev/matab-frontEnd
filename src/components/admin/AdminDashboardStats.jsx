@@ -8,6 +8,7 @@ import {
   FiTrendingUp,
 } from "react-icons/fi";
 import { adminApi } from "../../utils/api";
+import { formatRs } from "../../utils/currency";
 
 // Inline lightweight SVG chart for admin trend
 const AdminTrendChart = ({ data }) => {
@@ -141,12 +142,7 @@ const AdminDashboardStats = () => {
     }
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-PK", {
-      style: "currency",
-      currency: "PKR",
-    }).format(amount);
-  };
+  const formatCurrency = (amount) => formatRs(amount);
 
   if (loading) return <div className="loading">Loading dashboard stats...</div>;
   if (error) return <div className="error">Error: {error}</div>;

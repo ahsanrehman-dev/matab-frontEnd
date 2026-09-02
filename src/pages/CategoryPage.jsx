@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import api from "../utils/api";
 import { useCart } from "../context/CartContext";
+import { formatRs } from "../utils/currency";
 import {
   FiFilter,
   FiGrid,
@@ -256,12 +257,12 @@ const CategoryPage = () => {
 
                       <div className="product-price">
                         <span className="current-price">
-                          PKR {product.price.toLocaleString()}
+                          {formatRs(product.price)}
                         </span>
                         {product.originalPrice &&
                           product.originalPrice > product.price && (
                             <span className="original-price">
-                              PKR {product.originalPrice.toLocaleString()}
+                              {formatRs(product.originalPrice)}
                             </span>
                           )}
                       </div>

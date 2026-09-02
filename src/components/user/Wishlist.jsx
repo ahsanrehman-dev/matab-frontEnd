@@ -3,6 +3,7 @@ import { FiHeart, FiTrash2, FiShoppingCart, FiEye } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import api from "../../utils/api";
 import { useCart } from "../../context/CartContext";
+import { formatRs } from "../../utils/currency";
 
 const Wishlist = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
@@ -128,7 +129,7 @@ const Wishlist = () => {
 
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-green-600 font-semibold text-lg">
-                      PKR {item.productId.price.toLocaleString()}
+                      {formatRs(item.productId.price)}
                     </span>
                     <span
                       className={`text-sm font-medium ${item.productId.quantity > 0

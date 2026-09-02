@@ -252,7 +252,7 @@ const Checkout = () => {
             const productDetails = cartData.items
                 .map(
                     (item) =>
-                        `• ${item.product?.name} (x${item.quantity}) = PKR ${(
+                        `• ${item.product?.name} (x${item.quantity}) = Rs ${(
                             item.product?.price * item.quantity
                         ).toLocaleString()}`
                 )
@@ -272,10 +272,10 @@ ${shippingAddress.city}, ${shippingAddress.country}
 🛒 *Order Items:*
 ${productDetails}
 
-💰 *Subtotal:* PKR ${subtotal.toLocaleString()}
-🚚 *Shipping:* PKR ${shippingCost.toLocaleString()}
-🧾 *Tax:* PKR ${tax.toLocaleString()}
-✅ *Total:* PKR ${total.toLocaleString()}
+💰 *Subtotal:* Rs ${subtotal.toLocaleString()}
+🚚 *Shipping:* Rs ${shippingCost.toLocaleString()}
+🧾 *Tax:* Rs ${tax.toLocaleString()}
+✅ *Total:* Rs ${total.toLocaleString()}
 
 🗒️ *Notes:* ${notes || "None"}
 
@@ -383,7 +383,7 @@ Payment: Cash on Delivery
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Subtotal:</span>
                                     <span className="font-semibold text-gray-900">
-                                        PKR {orderDetails.subtotal?.toLocaleString()}
+                                        Rs {orderDetails.subtotal?.toLocaleString()}
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
@@ -392,20 +392,20 @@ Payment: Cash on Delivery
                                         {orderDetails.shippingCost === 0 ? (
                                             <span className="text-green-600">FREE</span>
                                         ) : (
-                                            `PKR ${orderDetails.shippingCost}`
+                                            `Rs ${orderDetails.shippingCost}`
                                         )}
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Tax:</span>
                                     <span className="font-semibold text-gray-900">
-                                        PKR {orderDetails.tax?.toLocaleString()}
+                                        Rs {orderDetails.tax?.toLocaleString()}
                                     </span>
                                 </div>
                                 <div className="flex justify-between pt-2 border-t border-gray-300">
                                     <span className="text-gray-900 font-bold">Total:</span>
                                     <span className="font-bold text-gray-900">
-                                        PKR {orderDetails.total?.toLocaleString()}
+                                        Rs {orderDetails.total?.toLocaleString()}
                                     </span>
                                 </div>
                                 <div className="flex justify-between pt-2 border-t border-gray-300">
@@ -662,7 +662,7 @@ Payment: Cash on Delivery
                                             </h3>
                                             <p className="text-xs text-gray-600">Qty: {item.quantity}</p>
                                             <p className="font-bold text-gray-900 text-sm">
-                                                PKR {((item.product?.price || 0) * item.quantity).toLocaleString()}
+                                                Rs {((item.product?.price || 0) * item.quantity).toLocaleString()}
                                             </p>
                                         </div>
                                     </div>
@@ -673,7 +673,7 @@ Payment: Cash on Delivery
                                 <div className="flex justify-between text-gray-700">
                                     <span>Subtotal ({cartData.totalItems} items)</span>
                                     <span className="font-semibold">
-                                        PKR {subtotal.toLocaleString()}
+                                        Rs {subtotal.toLocaleString()}
                                     </span>
                                 </div>
                                 <div className="flex justify-between text-gray-700">
@@ -682,25 +682,25 @@ Payment: Cash on Delivery
                                         {shippingCost === 0 ? (
                                             <span className="text-green-600">FREE</span>
                                         ) : (
-                                            `PKR ${shippingCost}`
+                                            `Rs ${shippingCost}`
                                         )}
                                     </span>
                                 </div>
                                 {shippingCost === 0 && (
                                     <p className="text-xs text-green-600 font-medium">
-                                        🎉 Free shipping on orders above PKR 5,000
+                                        🎉 Free shipping on orders above Rs 5,000
                                     </p>
                                 )}
                                 <div className="flex justify-between text-gray-700">
                                     <span>Tax (5%)</span>
-                                    <span className="font-semibold">PKR {tax.toLocaleString()}</span>
+                                    <span className="font-semibold">Rs {tax.toLocaleString()}</span>
                                 </div>
                             </div>
 
                             <div className="flex justify-between items-center mb-6 pb-6 border-b border-gray-200">
                                 <span className="text-xl font-bold text-gray-900">Total</span>
                                 <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                                    PKR {total.toLocaleString()}
+                                    Rs {total.toLocaleString()}
                                 </span>
                             </div>
 

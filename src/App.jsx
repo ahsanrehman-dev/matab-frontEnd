@@ -41,7 +41,9 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const showNavbar = !location.pathname.startsWith("/dashboard");
+  const showNavbar =
+    !location.pathname.startsWith("/dashboard") &&
+    !location.pathname.startsWith("/admin");
 
   return (
     <>
@@ -60,23 +62,9 @@ const Layout = ({ children }) => {
   );
 };
 
-// Helper function to get redirect path based on user role
-const getRedirectPath = (user) => {
-  if (!user) return "/";
-
-  const userRole = user.role;
-
-  if (userRole === "admin") {
-    // Admins go to dashboard
-    return "/dashboard";
-  } else {
-    // Default fallback to home page for buyers or others
-    return "/";
-  }
-};
-
 const AppRoutes = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
+  const adminLoggedIn = isAuthenticated && isAdmin;
 
   return (
     <Routes>
@@ -88,72 +76,75 @@ const AppRoutes = () => {
           </Layout>
         }
       />
-      <Route
-        path="/login"
-        element={
-          isAuthenticated ? (
-            <Navigate to={getRedirectPath(user)} replace />
-          ) : (
-            <Layout>
-              <Login />
-            </Layout>
-          )
-        }
-      />
-      <Route
-        path="/register"
-        element={
-          isAuthenticated ? (
-            <Navigate to={getRedirectPath(user)} replace />
-          ) : (
-            <Layout>
-              <Register />
-            </Layout>
-          )
-        }
-      />
+      <Route path="/login" element={<Navigate to="/" replace />} />
+      <Route path="/register" element={<Navigate to="/" replace />} />
       <Route
         path="/verify-email"
-        element={
-          isAuthenticated ? (
-            <Navigate to={getRedirectPath(user)} replace />
-          ) : (
-            <Layout>
-              <VerifyEmail />
-            </Layout>
-          )
-        }
+        element={<Navigate to="/admin/verify-email" replace />}
       />
       <Route
         path="/forgot-password"
+        element={<Navigate to="/admin/forgot-password" replace />}
+      />
+      <Route
+        path="/admin"
         element={
-          <Layout>
-            <ForgotPassword />
-          </Layout>
+          adminLoggedIn ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Login />
+          )
         }
       />
       <Route
-        path="/reset-password/:token"
+        path="/admin/login"
         element={
-          <Layout>
-            <ResetPassword />
-          </Layout>
+          adminLoggedIn ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Login />
+          )
         }
       />
+      <Route
+        path="/admin/register"
+        element={
+          adminLoggedIn ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Register />
+          )
+        }
+      />
+      <Route
+        path="/admin/verify-email"
+        element={
+          adminLoggedIn ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <VerifyEmail />
+          )
+        }
+      />
+      <Route path="/admin/forgot-password" element={<ForgotPassword />} />
+      <Route path="/admin/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
       <Route
         path="/dashboard"
-        element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
+        element={
+          adminLoggedIn ? <Dashboard /> : <Navigate to="/admin/login" replace />
+        }
       />
       <Route path="/userprofile" element={<UserProfile />} />
       <Route
         path="/edit-profile/:id"
         element={
-          isAuthenticated ? (
+          adminLoggedIn ? (
             <Layout>
               <UserProfile />
             </Layout>
           ) : (
-            <Navigate to="/login" />
+            <Navigate to="/admin/login" replace />
           )
         }
       />

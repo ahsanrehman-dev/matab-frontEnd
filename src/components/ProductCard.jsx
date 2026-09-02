@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiHeart, FiShoppingCart, FiStar, FiEye, FiBarChart2 } from "react-icons/fi";
 import { useCart } from "../context/CartContext";
+import { formatRs } from "../utils/currency";
 
 const ProductCard = ({ product }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -29,13 +30,7 @@ const ProductCard = ({ product }) => {
     navigate('/compare', { state: { productToCompare: product } });
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-PK", {
-      style: "currency",
-      currency: "PKR",
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+  const formatPrice = (price) => formatRs(price);
 
   const getRatingStars = (rating = 4.5) => {
     const stars = [];

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import "../Styles/style.css";
 
@@ -22,22 +22,11 @@ const Login = () => {
       const result = await login(email, password);
 
       if (result.success) {
-        // Get user role and navigate accordingly
-        const userRole = result.data?.role;
-
-        if (userRole === "buyer" || !userRole) {
-          // Buyers go to home page
-          navigate("/");
-        } else if (userRole === "vendor") {
-          // Vendors go to dashboard
-          navigate("/dashboard");
-        } else if (userRole === "admin") {
-          // Admins go to dashboard
-          navigate("/dashboard");
-        } else {
-          // Default fallback to home page
-          navigate("/");
+        if (result.data?.role !== "admin") {
+          setError("Only admin accounts can sign in.");
+          return;
         }
+        navigate("/dashboard");
       } else {
         setError(result.error);
       }
@@ -51,7 +40,10 @@ const Login = () => {
   return (
     <div className="auth-page">
       <div className="auth-form">
-        <h2>Welcome Back</h2>
+        <h2>Admin Login</h2>
+        <p style={{ textAlign: "center", marginBottom: "20px", color: "#666" }}>
+          Sign in to manage Matab Al-Shifa
+        </p>
         {error && <div className="auth-error">{error}</div>}
 
         <form onSubmit={handleSubmit}>
@@ -61,7 +53,7 @@ const Login = () => {
               id="email"
               type="email"
               className="auth-input"
-              placeholder="Enter your email"
+              placeholder="Enter admin email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -89,7 +81,7 @@ const Login = () => {
               </button>
             </div>
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "8px" }}>
-              <Link to="/forgot-password" style={{ color: "var(--primary-color, #007bff)", fontSize: "14px", textDecoration: "none" }}>
+              <Link to="/admin/forgot-password" style={{ color: "var(--primary-color, #007bff)", fontSize: "14px", textDecoration: "none" }}>
                 Forgot Password?
               </Link>
             </div>
@@ -101,9 +93,9 @@ const Login = () => {
         </form>
 
         <div className="auth-footer">
-          Don't have an account?{" "}
-          <Link to="/register" className="auth-link">
-            Register
+          Need an admin account?{" "}
+          <Link to="/admin/register" className="auth-link">
+            Sign Up
           </Link>
         </div>
       </div>

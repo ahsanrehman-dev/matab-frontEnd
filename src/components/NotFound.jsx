@@ -128,7 +128,7 @@ const NotFound = () => {
             <Link to="/new-arrivals" style={styles.suggestionLink}>New Arrivals</Link>
             <Link to="/todays-deal" style={styles.suggestionLink}>Today's Deals</Link>
             <Link to="/category/all-products" style={styles.suggestionLink}>All Products</Link>
-            <Link to="/login" style={styles.suggestionLink}>Login</Link>
+            <Link to="/products" style={styles.suggestionLink}>All Products</Link>
           </div>
         </div>
       </div>

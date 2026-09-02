@@ -5,6 +5,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { FiStar, FiShoppingCart, FiHeart, FiClock } from "react-icons/fi";
 import api, { productApi } from "../utils/api";
 import { useCart } from "../context/CartContext";
+import { formatRs } from "../utils/currency";
 
 const NewArrivals = () => {
   const [products, setProducts] = useState([]);
@@ -137,12 +138,12 @@ const NewArrivals = () => {
 
                   <div className="flex items-center gap-2 mt-3">
                     <span className="text-xl font-bold text-green-600">
-                      PKR {product.price.toLocaleString()}
+                      {formatRs(product.price)}
                     </span>
                     {product.originalPrice &&
                       product.originalPrice > product.price && (
                         <span className="text-gray-400 line-through text-sm">
-                          PKR {product.originalPrice.toLocaleString()}
+                          {formatRs(product.originalPrice)}
                         </span>
                       )}
                   </div>

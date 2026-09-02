@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiShoppingCart, FiPackage, FiUsers, FiDollarSign, FiCalendar, FiArrowRight, FiInfo } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from "../../utils/api";
+import { formatRs } from "../../utils/currency";
 
 const SupplyPurchaseDetails = () => {
   const [data, setData] = useState(null);
@@ -38,13 +39,7 @@ const SupplyPurchaseDetails = () => {
     });
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-PK', {
-      style: 'currency',
-      currency: 'PKR',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
+  const formatCurrency = (amount) => formatRs(amount);
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center py-20">

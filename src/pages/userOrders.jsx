@@ -33,7 +33,7 @@ const UserOrders = () => {
 
     useEffect(() => {
         if (!isAuthenticated) {
-            navigate("/login");
+            navigate("/");
             return;
         }
         fetchOrders();
@@ -269,7 +269,7 @@ const OrderCard = ({ order, index, onViewDetails, getStatusInfo }) => {
                     <div className="text-left lg:text-right">
                         <p className="text-sm text-gray-600 mb-1">Total Amount</p>
                         <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                            PKR {order.total?.toLocaleString()}
+                            Rs {order.total?.toLocaleString()}
                         </p>
                     </div>
                 </div>
@@ -443,7 +443,7 @@ const OrderDetailsModal = ({ order, onClose, getStatusInfo }) => {
                                             Quantity: {item.quantity}
                                         </p>
                                         <p className="font-bold text-green-600">
-                                            PKR {item.price?.toLocaleString()} × {item.quantity} = PKR{" "}
+                                            Rs {item.price?.toLocaleString()} × {item.quantity} = Rs{" "}
                                             {(item.total || item.price * item.quantity).toLocaleString()}
                                         </p>
                                     </div>
@@ -458,7 +458,7 @@ const OrderDetailsModal = ({ order, onClose, getStatusInfo }) => {
                         <div className="space-y-2">
                             <div className="flex justify-between text-gray-700">
                                 <span>Subtotal:</span>
-                                <span className="font-semibold">PKR {order.subtotal?.toLocaleString()}</span>
+                                <span className="font-semibold">Rs {order.subtotal?.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between text-gray-700">
                                 <span>Shipping:</span>
@@ -466,18 +466,18 @@ const OrderDetailsModal = ({ order, onClose, getStatusInfo }) => {
                                     {order.shippingCost === 0 ? (
                                         <span className="text-green-600">FREE</span>
                                     ) : (
-                                        `PKR ${order.shippingCost}`
+                                        `Rs ${order.shippingCost}`
                                     )}
                                 </span>
                             </div>
                             <div className="flex justify-between text-gray-700">
                                 <span>Tax (5%):</span>
-                                <span className="font-semibold">PKR {order.tax?.toLocaleString()}</span>
+                                <span className="font-semibold">Rs {order.tax?.toLocaleString()}</span>
                             </div>
                             <div className="border-t border-gray-300 pt-2 flex justify-between items-center">
                                 <span className="text-xl font-bold text-gray-900">Total:</span>
                                 <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                                    PKR {order.total?.toLocaleString()}
+                                    Rs {order.total?.toLocaleString()}
                                 </span>
                             </div>
                         </div>

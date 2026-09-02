@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { useCart } from "../../context/CartContext";
+import { formatRs } from "../../utils/currency";
 import {
   FiArrowRight,
   FiChevronRight,
@@ -193,13 +194,7 @@ const EnhancedCompactProductCard = ({ product }) => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
-  // Format price like in ProductCard
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-  };
+  const formatPrice = (price) => formatRs(price);
 
   // Get rating stars like in ProductCard
   const getRatingStars = (rating = product.rating || 4.5) => {

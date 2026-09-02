@@ -20,7 +20,7 @@ const VerifyEmail = () => {
 
     useEffect(() => {
         if (!email) {
-            navigate('/register');
+            navigate('/admin/register');
         }
     }, [email, navigate]);
 
@@ -89,7 +89,7 @@ const VerifyEmail = () => {
             if (result.success) {
                 setSuccess("Email verified successfully! Redirecting...");
                 setTimeout(() => {
-                    navigate("/");
+                    navigate("/dashboard");
                 }, 1500);
             } else {
                 setError(result.error);
@@ -198,7 +198,7 @@ const VerifyEmail = () => {
                         </button>
                     </p>
                     <div style={{ marginTop: "15px" }}>
-                        <Link to="/register" className="auth-link">
+                        <Link to="/admin/register" className="auth-link">
                             Change Email
                         </Link>
                     </div>

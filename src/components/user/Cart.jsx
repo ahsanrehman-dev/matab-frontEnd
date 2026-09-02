@@ -10,6 +10,7 @@ import {
 } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import { formatRs } from "../../utils/currency";
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -36,12 +37,7 @@ const Cart = () => {
   const shipping = subtotal > 2000 ? 0 : subtotal > 0 ? 200 : 0;
   const total = subtotal + shipping;
 
-  const format = (price) =>
-    new Intl.NumberFormat("en-PK", {
-      style: "currency",
-      currency: "PKR",
-      minimumFractionDigits: 0,
-    }).format(price || 0);
+  const format = (price) => formatRs(price || 0);
 
   return (
     <motion.div

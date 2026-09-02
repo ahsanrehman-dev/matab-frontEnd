@@ -298,7 +298,7 @@ const ProductEditForm = ({ product, onSave, onCancel }) => {
 
                     <div className="form-row">
                         <div className="form-group">
-                            <label htmlFor="price">Price (PKR) *</label>
+                            <label htmlFor="price">Price (Rs) *</label>
                             <input
                                 type="number"
                                 id="price"

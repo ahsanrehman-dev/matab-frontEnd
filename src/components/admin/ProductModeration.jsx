@@ -8,6 +8,7 @@ import {
   FiEye,
 } from "react-icons/fi";
 import api, { adminApi } from "../../utils/api";
+import { formatRs } from "../../utils/currency";
 
 const ProductModeration = () => {
   const [products, setProducts] = useState([]);
@@ -169,7 +170,7 @@ const ProductModeration = () => {
                   Vendor
                 </th>
                 <th className="px-6 py-3 font-semibold text-sm uppercase tracking-wide">
-                  Price (PKR)
+                  Price (Rs)
                 </th>
                 <th className="px-6 py-3 font-semibold text-sm uppercase tracking-wide">
                   Stock
@@ -233,7 +234,7 @@ const ProductModeration = () => {
 
                   {/* Price */}
                   <td className="px-6 py-4 font-medium text-gray-800">
-                    PKR {product.price.toLocaleString()}
+                    {formatRs(product.price)}
                   </td>
 
                   {/* Stock */}

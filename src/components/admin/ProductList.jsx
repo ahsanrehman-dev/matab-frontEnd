@@ -9,6 +9,7 @@ import ProductEditForm from "./ProductEditForm";
 import "./ProductList.css";
 import PropTypes from "prop-types";
 import api from "../../utils/api";
+import { formatRs } from "../../utils/currency";
 
 const ProductList = forwardRef(({ onAddProduct }, ref) => {
   const [products, setProducts] = useState([]);
@@ -157,7 +158,7 @@ const ProductList = forwardRef(({ onAddProduct }, ref) => {
                   <div className="product-info-row">
                     <div className="price-tag">
                       <span className="price-label">Price</span>
-                      <span className="price-value">PKR {product.price}</span>
+                      <span className="price-value">{formatRs(product.price)}</span>
                     </div>
                     <div className="stock-tag">
                       <span className="stock-label">Stock</span>

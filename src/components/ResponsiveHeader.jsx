@@ -229,12 +229,7 @@ const ResponsiveHeader = ({ onMenuClick }) => {
                                         </div>
                                     )}
                                 </div>
-                            ) : (
-                                <div className="auth-buttons">
-                                    <Link to="/login" className="auth-button login-btn">Login</Link>
-                                    <Link to="/register" className="auth-button register-btn">Register</Link>
-                                </div>
-                            )}
+                            ) : null}
 
                             {/* Mobile Menu Toggle */}
                             <button
@@ -323,25 +318,6 @@ const ResponsiveHeader = ({ onMenuClick }) => {
                                 ))}
                             </ul>
                         </nav>
-
-                        {!isAuthenticated && (
-                            <div className="mobile-auth">
-                                <Link
-                                    to="/login"
-                                    className="mobile-auth-button login"
-                                    onClick={() => setIsMenuOpen(false)}
-                                >
-                                    Login
-                                </Link>
-                                <Link
-                                    to="/register"
-                                    className="mobile-auth-button register"
-                                    onClick={() => setIsMenuOpen(false)}
-                                >
-                                    Register
-                                </Link>
-                            </div>
-                        )}
                     </div>
                 </div>
             )}

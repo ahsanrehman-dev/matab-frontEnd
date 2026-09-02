@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useCart } from "../context/CartContext";
 import { productApi } from "../utils/api";
+import { formatRs } from "../utils/currency";
 import {
   FiStar,
   FiShoppingCart,
@@ -295,7 +296,7 @@ const CustomerProducts = () => {
 
                   {/* Price Range */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Min Price (PKR)</label>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Min Price (Rs)</label>
                     <input
                       type="number"
                       placeholder="0"
@@ -306,7 +307,7 @@ const CustomerProducts = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Max Price (PKR)</label>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Max Price (Rs)</label>
                     <input
                       type="number"
                       placeholder="999999"
@@ -441,11 +442,11 @@ const CustomerProducts = () => {
                   {/* Price */}
                   <div className="flex items-end gap-3 mb-4">
                     <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                      PKR {(product.price || 0).toLocaleString()}
+                      {formatRs(product.price || 0)}
                     </span>
                     {getDiscountPercentage(product) > 0 && (
                       <span className="text-sm text-gray-400 line-through mb-1">
-                        PKR {(product.originalPrice || 0).toLocaleString()}
+                        {formatRs(product.originalPrice || 0)}
                       </span>
                     )}
                   </div>

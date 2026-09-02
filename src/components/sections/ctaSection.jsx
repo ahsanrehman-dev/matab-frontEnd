@@ -1,5 +1,5 @@
-
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import "../../Styles/Home.css";
 
 const ctaSection = () => {
@@ -22,17 +22,19 @@ const ctaSection = () => {
         >
           Join thousands of smart shoppers who compare before they buy.
         </motion.p>
-        <motion.button
-          className="cta-button"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          viewport={{ once: true }}
-        >
-          Sign Up Now
-        </motion.button>
+        <Link to="/products">
+          <motion.button
+            className="cta-button"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            viewport={{ once: true }}
+          >
+            Shop Now
+          </motion.button>
+        </Link>
       </div>
     </section>
   );

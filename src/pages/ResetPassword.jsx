@@ -37,7 +37,7 @@ const ResetPassword = () => {
             if (response.success) {
                 setSuccess("Password reset successful! Redirecting to login...");
                 setTimeout(() => {
-                    navigate("/login");
+                    navigate("/admin/login");
                 }, 2000);
             } else {
                 setError(response.error);
@@ -107,7 +107,7 @@ const ResetPassword = () => {
                 </form>
 
                 <div className="auth-footer">
-                    <Link to="/login" className="auth-link">
+                    <Link to="/admin/login" className="auth-link">
                         Back to Login
                     </Link>
                 </div>

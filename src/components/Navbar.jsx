@@ -76,23 +76,18 @@ const Navbar = () => {
       name: "Compare",
       href: "/compare",
     },
-    ...(!isAuthenticated ? [{ name: "Login", href: "/login" }] : []),
-    ...(isAuthenticated
+    ...(isAuthenticated && isAdmin()
       ? [
-        ...(isAdmin()
-          ? [
-            {
-              name: "Dashboard",
-              href: "/dashboard",
-            },
-          ]
-          : []),
-        {
-          name: "New Arrivals",
-          href: "/new-arrivals",
-        },
-      ]
+          {
+            name: "Dashboard",
+            href: "/dashboard",
+          },
+        ]
       : []),
+    {
+      name: "New Arrivals",
+      href: "/new-arrivals",
+    },
   ];
 
   const handleSearch = () => {
@@ -200,7 +195,7 @@ const Navbar = () => {
                 )}
               </Link>
 
-              {isAuthenticated ? (
+              {isAuthenticated && isAdmin() ? (
                 <>
                   {/* Customer Actions */}
                   {isCustomer() && (
@@ -262,22 +257,7 @@ const Navbar = () => {
                     </div>
                   </div>
                 </>
-              ) : (
-                <div className="flex items-center space-x-3">
-                  <Link
-                    to="/login"
-                    className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors duration-200"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-full hover:shadow-lg hover:scale-105 transition-all duration-200"
-                  >
-                    Sign Up
-                  </Link>
-                </div>
-              )}
+              ) : null}
 
               {/* Mobile Menu Toggle */}
               <button

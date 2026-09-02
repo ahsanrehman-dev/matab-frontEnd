@@ -29,7 +29,7 @@ const AdminDashboard = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/");
+    navigate("/admin/login");
   };
 
   const tabs = [

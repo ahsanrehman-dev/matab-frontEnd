@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { formatRs } from "../../utils/currency";
 
 const Wallet = () => {
   const { user } = useAuth();
@@ -140,9 +141,9 @@ const Wallet = () => {
       <div style={styles.balanceCard}>
         <div style={styles.balanceTitle}>Current Balance</div>
         <div style={styles.balanceAmount}>
-          ${walletData.balance.toFixed(2)}
+          {formatRs(walletData.balance)}
         </div>
-        <div style={styles.balanceCurrency}>USD</div>
+        <div style={styles.balanceCurrency}>Rs</div>
       </div>
 
       {/* Quick Actions */}

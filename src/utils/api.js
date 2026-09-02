@@ -16,8 +16,9 @@ class ApiError extends Error {
 }
 
 export function formatCurrencyPKR(value) {
-    if (!value && value !== 0) return "PKR 0";
-    return `PKR ${Number(value).toLocaleString()}`;
+    const amount = Number(value);
+    if (!Number.isFinite(amount)) return "Rs 0";
+    return `Rs ${Math.round(amount).toLocaleString()}`;
 }
 
 function encode(text) {

@@ -22,13 +22,22 @@ const CartModal = ({ isOpen, onClose }) => {
     const [error, setError] = useState(null);
 
     const { isAuthenticated } = useAuth();
-    const { fetchCartCount } = useCart();
+    const { fetchCartCount, cartItems: contextCartItems, updateCartItemQuantity, removeFromCart, clearCart: clearContextCart } = useCart();
 
     useEffect(() => {
-        if (isOpen && isAuthenticated) {
+        if (!isOpen) return;
+        if (isAuthenticated) {
             fetchCartItems();
+            return;
         }
-    }, [isOpen, isAuthenticated]);
+        setCartItems(
+            (contextCartItems || []).map((item) => ({
+                ...item,
+                product: item.product,
+                quantity: item.quantity || 1,
+            }))
+        );
+    }, [isOpen, isAuthenticated, contextCartItems]);
 
     const fetchCartItems = async () => {
         setLoading(true);
@@ -43,13 +52,20 @@ const CartModal = ({ isOpen, onClose }) => {
         }
     };
 
+    const getItemProductId = (item) =>
+        item.product?._id || item.productId || item._id;
+
     const updateQuantity = async (productId, newQuantity) => {
         if (newQuantity < 0) return;
 
         setUpdating(productId);
         try {
-            await cartApi.updateCartItem(productId, newQuantity);
-            await fetchCartItems();
+            if (!isAuthenticated) {
+                await updateCartItemQuantity(productId, newQuantity);
+            } else {
+                await cartApi.updateCartItem(productId, newQuantity);
+                await fetchCartItems();
+            }
             await fetchCartCount();
         } catch (err) {
             setError(err.message || 'Failed to update cart');
@@ -61,8 +77,12 @@ const CartModal = ({ isOpen, onClose }) => {
     const removeItem = async (productId) => {
         setUpdating(productId);
         try {
-            await cartApi.removeFromCart(productId);
-            await fetchCartItems();
+            if (!isAuthenticated) {
+                await removeFromCart(productId);
+            } else {
+                await cartApi.removeFromCart(productId);
+                await fetchCartItems();
+            }
             await fetchCartCount();
         } catch (err) {
             setError(err.message || 'Failed to remove item');
@@ -76,8 +96,13 @@ const CartModal = ({ isOpen, onClose }) => {
 
         setLoading(true);
         try {
-            await cartApi.clearCart();
-            setCartItems([]);
+            if (!isAuthenticated) {
+                await clearContextCart();
+                setCartItems([]);
+            } else {
+                await cartApi.clearCart();
+                setCartItems([]);
+            }
             await fetchCartCount();
         } catch (err) {
             setError(err.message || 'Failed to clear cart');
@@ -110,23 +135,7 @@ const CartModal = ({ isOpen, onClose }) => {
                 </div>
 
                 <div className="cart-modal-content">
-                    {!isAuthenticated ? (
-                        <div className="cart-login-prompt">
-                            <div className="login-prompt-icon">
-                                <FaShoppingBag />
-                            </div>
-                            <h4>Please log in to view your cart</h4>
-                            <p>Sign in to save your items and checkout</p>
-                            <div className="login-prompt-actions">
-                                <Link to="/login" className="btn btn-primary" onClick={onClose}>
-                                    Login
-                                </Link>
-                                <Link to="/register" className="btn btn-outline" onClick={onClose}>
-                                    Register
-                                </Link>
-                            </div>
-                        </div>
-                    ) : loading ? (
+                    {loading ? (
                         <div className="cart-loading">
                             <LoadingSpinner size="medium" text="Loading cart..." />
                         </div>
@@ -182,7 +191,7 @@ const CartModal = ({ isOpen, onClose }) => {
                                                 {item.product?.category}
                                             </p>
                                             <div className="cart-item-price">
-                                                PKR {item.product?.price?.toLocaleString() || '0'}
+                                                Rs {item.product?.price?.toLocaleString() || '0'}
                                             </div>
                                         </div>
 
@@ -190,13 +199,13 @@ const CartModal = ({ isOpen, onClose }) => {
                                             <div className="quantity-controls">
                                                 <button
                                                     className="quantity-btn"
-                                                    onClick={() => updateQuantity(item.product._id, item.quantity - 1)}
-                                                    disabled={updating === item.product._id || item.quantity <= 1}
+                                                    onClick={() => updateQuantity(getItemProductId(item), item.quantity - 1)}
+                                                    disabled={updating === getItemProductId(item) || item.quantity <= 1}
                                                 >
                                                     <FaMinus />
                                                 </button>
                                                 <span className="quantity-display">
-                                                    {updating === item.product._id ? (
+                                                    {updating === getItemProductId(item) ? (
                                                         <LoadingSpinner size="small" />
                                                     ) : (
                                                         item.quantity
@@ -204,8 +213,8 @@ const CartModal = ({ isOpen, onClose }) => {
                                                 </span>
                                                 <button
                                                     className="quantity-btn"
-                                                    onClick={() => updateQuantity(item.product._id, item.quantity + 1)}
-                                                    disabled={updating === item.product._id}
+                                                    onClick={() => updateQuantity(getItemProductId(item), item.quantity + 1)}
+                                                    disabled={updating === getItemProductId(item)}
                                                 >
                                                     <FaPlus />
                                                 </button>
@@ -213,8 +222,8 @@ const CartModal = ({ isOpen, onClose }) => {
 
                                             <button
                                                 className="remove-btn"
-                                                onClick={() => removeItem(item.product._id)}
-                                                disabled={updating === item.product._id}
+                                                onClick={() => removeItem(getItemProductId(item))}
+                                                disabled={updating === getItemProductId(item)}
                                                 title="Remove item"
                                             >
                                                 <FaTrash />
@@ -222,7 +231,7 @@ const CartModal = ({ isOpen, onClose }) => {
                                         </div>
 
                                         <div className="cart-item-total">
-                                            PKR {((item.product?.price || 0) * item.quantity).toLocaleString()}
+                                            Rs {((item.product?.price || 0) * item.quantity).toLocaleString()}
                                         </div>
                                     </div>
                                 ))}
@@ -239,23 +248,23 @@ const CartModal = ({ isOpen, onClose }) => {
                     )}
                 </div>
 
-                {isAuthenticated && cartItems.length > 0 && (
+                {cartItems.length > 0 && (
                     <div className="cart-modal-footer">
                         <div className="cart-summary">
                             <div className="cart-summary-row">
                                 <span>Subtotal ({totalItems} items)</span>
-                                <span>PKR {calculateTotal().toLocaleString()}</span>
+                                <span>Rs {calculateTotal().toLocaleString()}</span>
                             </div>
                             <div className="cart-summary-row">
                                 <span>Shipping</span>
                                 <span>
-                                    {calculateTotal() > 5000 ? 'Free' : 'PKR 200'}
+                                    {calculateTotal() > 5000 ? 'Free' : 'Rs 200'}
                                 </span>
                             </div>
                             <div className="cart-summary-row total">
                                 <span>Total</span>
                                 <span>
-                                    PKR {(calculateTotal() + (calculateTotal() > 5000 ? 0 : 200)).toLocaleString()}
+                                    Rs {(calculateTotal() + (calculateTotal() > 5000 ? 0 : 200)).toLocaleString()}
                                 </span>
                             </div>
                         </div>

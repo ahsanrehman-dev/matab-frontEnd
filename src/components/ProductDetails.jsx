@@ -18,6 +18,7 @@ import {
 } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import { formatRs } from "../utils/currency";
 import api from "../utils/api";
 
 const ProductDetails = () => {
@@ -85,7 +86,7 @@ const ProductDetails = () => {
 
   const handleWishlist = async () => {
     if (!isAuthenticated) {
-      navigate("/login");
+      navigate("/wishlist");
       return;
     }
     setIsAddingToWishlist(true);
@@ -250,18 +251,17 @@ const ProductDetails = () => {
               <div className="mb-6">
                 <div className="flex items-end gap-4 mb-2">
                   <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                    PKR {product.price?.toLocaleString()}
+                    {formatRs(product.price)}
                   </h2>
                   {product.originalPrice > product.price && (
                     <span className="text-xl text-gray-400 line-through mb-1">
-                      PKR {product.originalPrice.toLocaleString()}
+                      {formatRs(product.originalPrice)}
                     </span>
                   )}
                 </div>
                 {discount > 0 && (
                   <p className="text-green-600 font-semibold">
-                    You save PKR{" "}
-                    {(product.originalPrice - product.price).toLocaleString()} (
+                    You save {formatRs(product.originalPrice - product.price)} (
                     {discount}%)
                   </p>
                 )}
@@ -388,7 +388,7 @@ const ProductDetails = () => {
                     Free Delivery
                   </span>
                   <span className="text-xs text-gray-600">
-                    On orders above PKR 2000
+                    On orders above Rs 2000
                   </span>
                 </div>
                 <div className="flex flex-col items-center bg-gradient-to-br from-green-50 to-green-100/50 rounded-xl p-4 border border-green-200/50">

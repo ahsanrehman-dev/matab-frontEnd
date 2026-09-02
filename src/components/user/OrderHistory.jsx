@@ -283,10 +283,10 @@ const OrderHistory = () => {
                 <div style={styles.orderSummary}>
                   <p style={styles.quantity}>Quantity: {order.quantity}</p>
                   <p style={styles.price}>
-                    PKR {order.price?.toLocaleString()} each
+                    Rs {order.price?.toLocaleString()} each
                   </p>
                   <p style={styles.total}>
-                    Total: PKR {((order.price || 0) * (order.quantity || 0)).toLocaleString()}
+                    Total: Rs {((order.price || 0) * (order.quantity || 0)).toLocaleString()}
                   </p>
                 </div>
               </div>
