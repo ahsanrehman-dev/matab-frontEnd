@@ -51,6 +51,7 @@ const Checkout = () => {
     const { user, isAuthenticated } = useAuth();
     const { cartItems } = useCart();
     const [loading, setLoading] = useState(true);
+    const [placingOrder, setPlacingOrder] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState(false);
     const [orderDetails, setOrderDetails] = useState(null);
     const [cartData, setCartData] = useState(null);
@@ -184,7 +185,7 @@ const Checkout = () => {
             street: shippingAddress.address,
             city: shippingAddress.city,
             state: shippingAddress.city,
-            zipCode: "",
+            zipCode: shippingAddress.zipCode?.trim() || "N/A",
             country: shippingAddress.country || "Pakistan",
         };
     };
@@ -198,7 +199,7 @@ const Checkout = () => {
         const total = subtotal + shippingCost + tax;
 
         try {
-            setLoading(true);
+            setPlacingOrder(true);
 
             const apiShippingAddress = getApiShippingAddress();
             let response = null;
@@ -214,11 +215,15 @@ const Checkout = () => {
                     }
                 }
 
-                response = await api.post("/user/orders", {
-                    shippingAddress: apiShippingAddress,
-                    paymentMethod,
-                    notes,
-                });
+                response = await api.post(
+                    "/user/orders",
+                    {
+                        shippingAddress: apiShippingAddress,
+                        paymentMethod,
+                        notes,
+                    },
+                    { timeout: 60000 }
+                );
             }
 
             const productDetails = cartData.items
@@ -276,10 +281,10 @@ Payment: Cash on Delivery
             );
             setOrderPlaced(true);
         } catch (error) {
-            console.log(error);
-            alert("Failed to place order");
+            console.error("Place order error:", error);
+            alert(error.message || "Failed to place order. Please try again.");
         } finally {
-            setLoading(false);
+            setPlacingOrder(false);
         }
     };
 
@@ -698,10 +703,10 @@ Payment: Cash on Delivery
 
                             <button
                                 onClick={handlePlaceOrder}
-                                disabled={loading}
+                                disabled={placingOrder}
                                 className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:shadow-xl hover:shadow-blue-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
-                                {loading ? (
+                                {placingOrder ? (
                                     <>
                                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                         Processing...
